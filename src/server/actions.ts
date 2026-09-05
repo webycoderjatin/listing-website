@@ -5,12 +5,15 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { slugify } from "@/lib/text";
+
+type FormState = { error?: string } | null;
 
 function generateSlug(name: string, city: string) {
-  return `${name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${city.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${Math.floor(Math.random() * 1000)}`;
+  return `${slugify(name)}-${slugify(city)}`;
 }
 
-export async function createBusiness(prevState: unknown, formData: FormData) {
+export async function createBusiness(_prevState: FormState, formData: FormData): Promise<FormState> {
   let business;
   try {
     const session = await getServerSession(authOptions);
@@ -20,33 +23,45 @@ export async function createBusiness(prevState: unknown, formData: FormData) {
     }
 
     const user = session.user;
-    const name = formData.get("name") as string;
-    const categoryId = formData.get("categoryId") as string;
-    const description = formData.get("description") as string;
+    const read = (key: string) => String(formData.get(key) ?? "").trim();
+    const name = read("name");
+    const categoryId = read("categoryId");
+    const description = read("description");
     
     if (!name || !categoryId) {
       return { error: "Name and Category are required." };
     }
 
-    const phone = formData.get("phone") as string;
-    const whatsapp = formData.get("whatsapp") as string;
-    const website = formData.get("website") as string;
-    const address = formData.get("address") as string;
-    const locality = formData.get("locality") as string;
-    const city = formData.get("city") as string;
-    const state = formData.get("state") as string;
-    const pincode = formData.get("pincode") as string;
+    const phone = read("phone");
+    const whatsapp = read("whatsapp");
+    const website = read("website");
+    const address = read("address");
+    const locality = read("locality");
+    const city = read("city");
+    const state = read("state");
+    const pincode = read("pincode");
     
     if (!city) {
       return { error: "City is required." };
     }
 
-    const slug = generateSlug(name, city);
+    if (!description || !address || !locality || !state || !pincode) {
+      return { error: "Description and all location fields are required." };
+    }
 
-    // check if slug exists
-    const existing = await prisma.business.findUnique({ where: { slug } });
-    if (existing) {
-      return { error: "A business with a similar name already exists in this city. Please try a different name." };
+    const category = await prisma.category.findUnique({ where: { id: categoryId } });
+    if (!category) {
+      return { error: "Please select a valid category." };
+    }
+
+    const baseSlug = generateSlug(name, city);
+    if (!baseSlug) {
+      return { error: "Please enter a valid business name and city." };
+    }
+
+    let slug = baseSlug;
+    for (let suffix = 2; await prisma.business.findUnique({ where: { slug } }); suffix += 1) {
+      slug = `${baseSlug}-${suffix}`;
     }
 
     business = await prisma.business.create({
@@ -56,9 +71,9 @@ export async function createBusiness(prevState: unknown, formData: FormData) {
         slug,
         categoryId,
         description,
-        phone,
-        whatsapp,
-        website,
+        phone: phone || null,
+        whatsapp: whatsapp || null,
+        website: website || null,
         address,
         locality,
         city,

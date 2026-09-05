@@ -1,18 +1,35 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import crypto from "crypto";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
 
 export async function POST(req: Request) {
   try {
-    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, businessId } = await req.json();
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, businessId } = await req.json() as Record<string, string | undefined>;
+    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature || !businessId) {
+      return NextResponse.json({ error: "Missing payment verification fields" }, { status: 400 });
+    }
+
+    const keySecret = process.env.RAZORPAY_KEY_SECRET;
+    if (!keySecret) {
+      console.error("Razorpay credentials are not configured");
+      return NextResponse.json({ error: "Payments are not configured" }, { status: 503 });
+    }
 
     const body = razorpay_order_id + "|" + razorpay_payment_id;
     const expectedSignature = crypto
-      .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET!)
+      .createHmac("sha256", keySecret)
       .update(body.toString())
       .digest("hex");
 
-    const isAuthentic = expectedSignature === razorpay_signature;
+    const isAuthentic = razorpay_signature.length === expectedSignature.length
+      && crypto.timingSafeEqual(Buffer.from(expectedSignature), Buffer.from(razorpay_signature));
 
     if (!isAuthentic) {
       return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
@@ -20,34 +37,39 @@ export async function POST(req: Request) {
 
     const payment = await prisma.payment.findUnique({
       where: { razorpayOrderId: razorpay_order_id },
+      include: { business: { select: { ownerId: true } } },
     });
 
-    if (!payment) {
+    if (!payment || payment.businessId !== businessId || payment.business.ownerId !== session.user.id) {
       return NextResponse.json({ error: "Payment not found" }, { status: 404 });
     }
 
-    if (payment.status === "SUCCESS") {
-      return NextResponse.json({ error: "Payment already verified" }, { status: 400 });
+    if (payment.status !== "PENDING") {
+      return NextResponse.json({ error: "Payment is not pending" }, { status: 409 });
     }
 
-    // Update payment
-    await prisma.payment.update({
-      where: { id: payment.id },
-      data: {
-        razorpayPaymentId: razorpay_payment_id,
-        razorpaySignature: razorpay_signature,
-        status: "SUCCESS",
-        paidAt: new Date(),
-      }
+    const verified = await prisma.$transaction(async (tx) => {
+      const businessUpdate = await tx.business.updateMany({
+        where: { id: payment.businessId, status: "PENDING_PAYMENT" },
+        data: { status: "PENDING_APPROVAL" },
+      });
+      if (businessUpdate.count !== 1) return false;
+
+      const paymentUpdate = await tx.payment.updateMany({
+        where: { id: payment.id, status: "PENDING" },
+        data: {
+          razorpayPaymentId: razorpay_payment_id,
+          razorpaySignature: razorpay_signature,
+          status: "SUCCESS",
+          paidAt: new Date(),
+        },
+      });
+      return paymentUpdate.count === 1;
     });
 
-    // Update business status
-    await prisma.business.update({
-      where: { id: payment.businessId },
-      data: {
-        status: "PENDING_APPROVAL",
-      }
-    });
+    if (!verified) {
+      return NextResponse.json({ error: "Payment has already been processed" }, { status: 409 });
+    }
 
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (error) {

@@ -2,8 +2,11 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
-import { Plus, Store, Clock, AlertCircle, CheckCircle, CreditCard } from "lucide-react";
+import { Plus, Store, Clock, CheckCircle, CreditCard } from "lucide-react";
 import { redirect } from "next/navigation";
+import { slugify } from "@/lib/text";
+
+export const dynamic = "force-dynamic";
 
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
@@ -92,7 +95,7 @@ export default async function DashboardPage() {
                     )}
                     {business.status === 'APPROVED' && (
                       <Link 
-                        href={`/business/${business.city?.toLowerCase()}/${business.category.slug}/${business.slug}`}
+                        href={`/business/${slugify(business.city ?? "")}/${business.category.slug}/${business.slug}`}
                         target="_blank"
                         className="px-4 py-2 border border-blue-200 text-blue-700 bg-blue-50 rounded-lg text-sm font-medium hover:bg-blue-100"
                       >

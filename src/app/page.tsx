@@ -46,23 +46,23 @@ export default function Home() {
               <h2 className="text-3xl font-bold text-gray-900">Explore Categories</h2>
               <p className="mt-2 text-lg text-gray-600">Find exactly what you&apos;re looking for</p>
             </div>
-            <Link href="/categories" className="text-blue-600 font-medium hover:text-blue-800 hidden sm:block">
+            <Link href="/search" className="text-blue-600 font-medium hover:text-blue-800 hidden sm:block">
               View all &rarr;
             </Link>
           </div>
           
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {[
-              { name: "Restaurants", icon: "🍔", color: "bg-orange-100 text-orange-600" },
-              { name: "Healthcare", icon: "⚕️", color: "bg-blue-100 text-blue-600" },
-              { name: "Beauty & Salons", icon: "✂️", color: "bg-pink-100 text-pink-600" },
-              { name: "Fitness", icon: "💪", color: "bg-green-100 text-green-600" },
-              { name: "Automotive", icon: "🚗", color: "bg-gray-200 text-gray-700" },
-              { name: "Home Services", icon: "🔧", color: "bg-yellow-100 text-yellow-700" },
-              { name: "Education", icon: "📚", color: "bg-indigo-100 text-indigo-600" },
-              { name: "Professional Services", icon: "💼", color: "bg-purple-100 text-purple-600" },
+              { name: "Restaurants", slug: "restaurants", icon: "🍔", color: "bg-orange-100 text-orange-600" },
+              { name: "Healthcare", slug: "healthcare", icon: "⚕️", color: "bg-blue-100 text-blue-600" },
+              { name: "Beauty & Salons", slug: "salons", icon: "✂️", color: "bg-pink-100 text-pink-600" },
+              { name: "Fitness", slug: "fitness", icon: "💪", color: "bg-green-100 text-green-600" },
+              { name: "Automotive", slug: "automotive", icon: "🚗", color: "bg-gray-200 text-gray-700" },
+              { name: "Home Services", slug: "home-services", icon: "🔧", color: "bg-yellow-100 text-yellow-700" },
+              { name: "Education", slug: "education", icon: "📚", color: "bg-indigo-100 text-indigo-600" },
+              { name: "Professional Services", slug: "professional", icon: "💼", color: "bg-purple-100 text-purple-600" },
             ].map((category) => (
-              <Link href={`/category/${category.name.toLowerCase().replace(/ & /g, '-').replace(/ /g, '-')}`} key={category.name} className="bg-white rounded-xl p-6 text-center shadow-sm hover:shadow-md transition-shadow border border-gray-100 flex flex-col items-center group">
+              <Link href={`/category/${category.slug}`} key={category.name} className="bg-white rounded-xl p-6 text-center shadow-sm hover:shadow-md transition-shadow border border-gray-100 flex flex-col items-center group">
                 <div className={`w-16 h-16 rounded-full flex items-center justify-center text-3xl mb-4 ${category.color} group-hover:scale-110 transition-transform`}>
                   {category.icon}
                 </div>

@@ -11,12 +11,22 @@ export default function PaymentPage({ params }: { params: Promise<{ id: string }
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+  const [checkoutReady, setCheckoutReady] = useState(false);
 
   const handlePayment = async () => {
     setLoading(true);
     setError("");
 
     try {
+      if (!checkoutReady || !window.Razorpay) {
+        throw new Error("The payment checkout is still loading. Please try again in a moment.");
+      }
+
+      const key = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
+      if (!key) {
+        throw new Error("Payments are not configured. Please contact support.");
+      }
+
       const res = await fetch("/api/razorpay/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -28,7 +38,7 @@ export default function PaymentPage({ params }: { params: Promise<{ id: string }
       const { orderId, amount, currency } = await res.json();
 
       const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "rzp_test_placeholder",
+        key,
         amount,
         currency,
         name: "LocalFind",
@@ -64,16 +74,15 @@ export default function PaymentPage({ params }: { params: Promise<{ id: string }
         },
       };
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const paymentObject = new (window as any).Razorpay(options);
+      const paymentObject = new window.Razorpay(options);
       paymentObject.open();
       
       paymentObject.on("payment.failed", function () {
         setError("Payment failed. Please try again.");
       });
       
-    } catch (err) {
-      setError("Something went wrong. Please try again.");
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -96,7 +105,7 @@ export default function PaymentPage({ params }: { params: Promise<{ id: string }
 
   return (
     <>
-      <Script src="https://checkout.razorpay.com/v1/checkout.js" />
+      <Script src="https://checkout.razorpay.com/v1/checkout.js" onLoad={() => setCheckoutReady(true)} />
       
       <div className="bg-white p-8 rounded-xl border border-gray-200 shadow-sm max-w-lg mx-auto mt-10">
         <h1 className="text-2xl font-bold text-gray-900 mb-2">Complete Your Listing</h1>
@@ -125,11 +134,11 @@ export default function PaymentPage({ params }: { params: Promise<{ id: string }
 
         <button
           onClick={handlePayment}
-          disabled={loading}
+          disabled={loading || !checkoutReady}
           className="w-full flex justify-center items-center py-4 px-4 border border-transparent rounded-lg shadow-sm text-lg font-bold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
         >
           <CreditCard className="h-5 w-5 mr-2" />
-          {loading ? "Processing..." : "Pay ₹399 Now"}
+          {loading ? "Processing..." : checkoutReady ? "Pay ₹399 Now" : "Loading payment..."}
         </button>
         <p className="text-center text-xs text-gray-500 mt-4">
           Secured by Razorpay

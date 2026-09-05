@@ -7,3 +7,16 @@ declare module 'razorpay' {
     };
   }
 }
+
+interface RazorpayCheckout {
+  open(): void;
+  on(event: "payment.failed", callback: () => void): void;
+}
+
+declare global {
+  interface Window {
+    Razorpay: new (options: Record<string, unknown>) => RazorpayCheckout;
+  }
+}
+
+export {};

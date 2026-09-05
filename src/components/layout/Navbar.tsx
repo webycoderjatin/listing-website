@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
-import { Search, Menu, User, LogOut } from "lucide-react";
+import { Search, Menu, LogOut } from "lucide-react";
 import { useState } from "react";
 
 export function Navbar() {

@@ -1,23 +1,25 @@
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
-import { MapPin, Phone, Globe, MessageCircle, Clock, CheckCircle2, Star, Share2 } from "lucide-react";
-import type { Metadata, ResolvingMetadata } from "next";
+import { MapPin, Phone, Globe, MessageCircle, Clock, CheckCircle2, Share2 } from "lucide-react";
+import type { Metadata } from "next";
+import { normalisePhoneForWhatsApp, slugify } from "@/lib/text";
+
+export const dynamic = "force-dynamic";
 
 type Props = {
   params: Promise<{ city: string; category: string; slug: string }>;
 };
 
 export async function generateMetadata(
-  { params }: Props,
-  parent: ResolvingMetadata
+  { params }: Props
 ): Promise<Metadata> {
-  const { slug } = await params;
+  const { city, category, slug } = await params;
   const business = await prisma.business.findUnique({
     where: { slug },
     include: { category: true },
   });
 
-  if (!business || business.status !== "APPROVED") {
+  if (!business || business.status !== "APPROVED" || business.category.slug !== category || slugify(business.city ?? "") !== city) {
     return { title: "Not Found" };
   }
 
@@ -28,7 +30,7 @@ export async function generateMetadata(
 }
 
 export default async function BusinessProfilePage({ params }: Props) {
-  const { slug } = await params;
+  const { city, category, slug } = await params;
   const business = await prisma.business.findUnique({
     where: { slug },
     include: {
@@ -40,12 +42,13 @@ export default async function BusinessProfilePage({ params }: Props) {
     },
   });
 
-  if (!business || business.status !== "APPROVED") {
+  if (!business || business.status !== "APPROVED" || business.category.slug !== category || slugify(business.city ?? "") !== city) {
     notFound();
   }
 
   const logo = business.media.find(m => m.type === 'LOGO');
   const images = business.media.filter(m => m.type === 'IMAGE');
+  const whatsappNumber = business.whatsapp ? normalisePhoneForWhatsApp(business.whatsapp) : "";
 
   const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
@@ -173,8 +176,8 @@ export default async function BusinessProfilePage({ params }: Props) {
                   </a>
                 )}
                 
-                {business.whatsapp && (
-                  <a href={`https://wa.me/${business.whatsapp}`} target="_blank" rel="noreferrer" className="flex items-center w-full p-4 rounded-xl border border-gray-200 hover:border-green-500 hover:bg-green-50 transition-colors group">
+                {business.whatsapp && whatsappNumber && (
+                  <a href={`https://wa.me/${whatsappNumber}`} target="_blank" rel="noreferrer" className="flex items-center w-full p-4 rounded-xl border border-gray-200 hover:border-green-500 hover:bg-green-50 transition-colors group">
                     <div className="bg-green-100 p-2 rounded-full mr-4 group-hover:bg-green-600 group-hover:text-white transition-colors">
                       <MessageCircle className="h-5 w-5 text-green-600 group-hover:text-white" />
                     </div>

@@ -4,33 +4,39 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 
+export const dynamic = "force-dynamic";
+
 async function requireAdmin() {
   const session = await getServerSession(authOptions);
   if (!session || session.user?.role !== "ADMIN") {
-    throw new Error("Unauthorized");
+    redirect("/");
   }
+}
+
+async function setBusinessStatus(formData: FormData, status: "APPROVED" | "REJECTED" | "SUSPENDED") {
+  "use server";
+  await requireAdmin();
+  const id = String(formData.get("id") ?? "");
+  if (!id) return;
+  await prisma.business.update({ where: { id }, data: { status } });
+  revalidatePath("/admin");
+  revalidatePath("/admin/businesses");
+  revalidatePath("/dashboard");
 }
 
 async function approveBusiness(formData: FormData) {
   "use server";
-  await requireAdmin();
-  const id = formData.get("id") as string;
-  await prisma.business.update({
-    where: { id },
-    data: { status: "APPROVED" }
-  });
-  revalidatePath("/admin/businesses");
+  return setBusinessStatus(formData, "APPROVED");
 }
 
 async function rejectBusiness(formData: FormData) {
   "use server";
-  await requireAdmin();
-  const id = formData.get("id") as string;
-  await prisma.business.update({
-    where: { id },
-    data: { status: "REJECTED" }
-  });
-  revalidatePath("/admin/businesses");
+  return setBusinessStatus(formData, "REJECTED");
+}
+
+async function suspendBusiness(formData: FormData) {
+  "use server";
+  return setBusinessStatus(formData, "SUSPENDED");
 }
 
 export default async function AdminBusinessesPage({
@@ -44,7 +50,8 @@ export default async function AdminBusinessesPage({
   }
 
   const awaitedSearchParams = await searchParams;
-  const page = parseInt(awaitedSearchParams.page || "1");
+  const requestedPage = Number.parseInt(awaitedSearchParams.page || "1", 10);
+  const page = Number.isFinite(requestedPage) ? Math.max(1, requestedPage) : 1;
   const take = 50;
   const skip = (page - 1) * take;
 
@@ -112,7 +119,7 @@ export default async function AdminBusinessesPage({
                       </>
                     )}
                     {business.status === 'APPROVED' && (
-                      <form action={rejectBusiness} className="inline">
+                      <form action={suspendBusiness} className="inline">
                         <input type="hidden" name="id" value={business.id} />
                         <button type="submit" className="text-sm text-gray-600 font-medium hover:text-gray-800 bg-gray-100 px-3 py-1 rounded">
                           Suspend

@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
-import { createBusiness } from "@/server/actions";
 import { NewBusinessForm } from "./NewBusinessForm";
+
+export const dynamic = "force-dynamic";
 
 export default async function NewBusinessPage() {
   const categories = await prisma.category.findMany({

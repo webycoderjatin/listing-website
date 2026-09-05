@@ -1,9 +1,11 @@
 import { prisma } from "@/lib/prisma";
-import { Store, CreditCard, Clock, CheckCircle, Users } from "lucide-react";
+import { Store, CreditCard, Clock, CheckCircle } from "lucide-react";
 import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
+
+export const dynamic = "force-dynamic";
 
 export default async function AdminDashboard() {
   const session = await getServerSession(authOptions);

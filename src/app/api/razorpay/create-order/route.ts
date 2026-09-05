@@ -4,11 +4,6 @@ import { authOptions } from "@/lib/auth";
 import Razorpay from "razorpay";
 import { prisma } from "@/lib/prisma";
 
-const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID!,
-  key_secret: process.env.RAZORPAY_KEY_SECRET!,
-});
-
 export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions);
@@ -16,7 +11,10 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { businessId } = await req.json();
+    const { businessId } = await req.json() as { businessId?: string };
+    if (!businessId) {
+      return NextResponse.json({ error: "Business id is required" }, { status: 400 });
+    }
 
     const business = await prisma.business.findUnique({
       where: { id: businessId },
@@ -24,6 +22,29 @@ export async function POST(req: Request) {
 
     if (!business || business.ownerId !== session.user.id) {
       return NextResponse.json({ error: "Business not found or unauthorized" }, { status: 403 });
+    }
+
+    if (business.status !== "PENDING_PAYMENT") {
+      return NextResponse.json({ error: "This listing is not awaiting payment" }, { status: 409 });
+    }
+
+    const existingPayment = await prisma.payment.findFirst({
+      where: { businessId, status: "PENDING" },
+      orderBy: { createdAt: "desc" },
+    });
+    if (existingPayment) {
+      return NextResponse.json({
+        orderId: existingPayment.razorpayOrderId,
+        amount: existingPayment.amount,
+        currency: existingPayment.currency,
+      });
+    }
+
+    const keyId = process.env.RAZORPAY_KEY_ID;
+    const keySecret = process.env.RAZORPAY_KEY_SECRET;
+    if (!keyId || !keySecret) {
+      console.error("Razorpay credentials are not configured");
+      return NextResponse.json({ error: "Payments are not configured" }, { status: 503 });
     }
 
     const amount = 39900; // ₹399.00 in paise
@@ -35,6 +56,7 @@ export async function POST(req: Request) {
       receipt: `rcpt_${businessId.substring(0, 20)}`,
     };
 
+    const razorpay = new Razorpay({ key_id: keyId, key_secret: keySecret });
     const order = await razorpay.orders.create(options);
 
     await prisma.payment.create({

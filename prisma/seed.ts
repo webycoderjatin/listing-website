@@ -1,5 +1,5 @@
-const { PrismaClient } = require('@prisma/client');
-const bcrypt = require('bcryptjs');
+import { Prisma, PrismaClient } from "@prisma/client";
+import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
@@ -8,7 +8,7 @@ async function main() {
 
   // Create admin user
   const adminPassword = await bcrypt.hash('admin123', 10);
-  const admin = await prisma.user.upsert({
+  await prisma.user.upsert({
     where: { email: 'admin@localfind.com' },
     update: {},
     create: {
@@ -44,6 +44,9 @@ async function main() {
   const restaurants = await prisma.category.findUnique({ where: { slug: 'restaurants' } });
   const healthcare = await prisma.category.findUnique({ where: { slug: 'healthcare' } });
   const salons = await prisma.category.findUnique({ where: { slug: 'salons' } });
+  if (!restaurants || !healthcare || !salons) {
+    throw new Error("Required seed categories could not be created");
+  }
 
   // Create business owners
   const ownerPassword = await bcrypt.hash('owner123', 10);
@@ -70,7 +73,7 @@ async function main() {
   });
 
   // Create Businesses
-  const businesses = [
+  const businesses: Prisma.BusinessUncheckedCreateInput[] = [
     {
       ownerId: owner1.id,
       name: 'Sharma Dental Clinic',

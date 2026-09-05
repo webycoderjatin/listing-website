@@ -3,6 +3,9 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { Star, MapPin, Store } from "lucide-react";
 import type { Metadata } from "next";
+import { slugify } from "@/lib/text";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Search Businesses | LocalFind",
@@ -23,7 +26,8 @@ export default async function SearchPage({
   const query = queryParam || "";
   const category = categoryParam || "";
   const location = locationParam || "";
-  const page = parseInt(pageParam || "1", 10);
+  const requestedPage = Number.parseInt(pageParam || "1", 10);
+  const page = Number.isFinite(requestedPage) ? Math.max(1, requestedPage) : 1;
   const take = 20;
   const skip = (page - 1) * take;
 
@@ -56,7 +60,7 @@ export default async function SearchPage({
         where: { type: "IMAGE" },
         take: 1,
       },
-      reviews: true,
+      reviews: { where: { status: "APPROVED" } },
     },
     orderBy: { createdAt: "desc" },
     take,
@@ -97,6 +101,14 @@ export default async function SearchPage({
                     placeholder="Keywords..."
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                   />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                  <select name="category" defaultValue={category} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white">
+                    <option value="">All categories</option>
+                    {categories.map((item) => <option key={item.id} value={item.slug}>{item.name}</option>)}
+                  </select>
                 </div>
 
                 <div>
@@ -167,7 +179,7 @@ export default async function SearchPage({
                         </div>
                         
                         <Link 
-                          href={`/business/${business.city?.toLowerCase()}/${business.category.slug}/${business.slug}`} 
+                          href={`/business/${slugify(business.city ?? "")}/${business.category.slug}/${business.slug}`}
                           className="block w-full text-center py-2 border border-blue-600 text-blue-600 rounded-lg font-medium hover:bg-blue-50 transition-colors"
                         >
                           View Profile

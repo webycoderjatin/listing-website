@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Check, Star, Store, MapPin, Globe, Clock, Camera } from "lucide-react";
+import { Check, Store, MapPin, Globe, Clock, Camera } from "lucide-react";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {

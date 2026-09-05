@@ -1,7 +1,10 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
-import { Star, MapPin, Store } from "lucide-react";
+import { MapPin, Store } from "lucide-react";
 import type { Metadata } from "next";
+import { slugify } from "@/lib/text";
+
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: { params: Promise<{ city: string }> }): Promise<Metadata> {
   const { city } = await params;
@@ -24,7 +27,7 @@ export default async function LocationPage({ params }: { params: Promise<{ city:
     include: {
       category: true,
       media: { where: { type: "IMAGE" }, take: 1 },
-      reviews: true,
+      reviews: { where: { status: "APPROVED" } },
     },
     orderBy: { createdAt: "desc" },
   });
@@ -77,7 +80,7 @@ export default async function LocationPage({ params }: { params: Promise<{ city:
                     </div>
                     
                     <Link 
-                      href={`/business/${(business.city || 'unlisted').toLowerCase()}/${business.category.slug}/${business.slug}`} 
+                      href={`/business/${slugify(business.city ?? "")}/${business.category.slug}/${business.slug}`}
                       className="block w-full text-center py-2 border border-blue-600 text-blue-600 rounded-lg font-medium hover:bg-blue-50 transition-colors"
                     >
                       View Profile
