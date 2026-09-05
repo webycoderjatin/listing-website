@@ -12,7 +12,7 @@ export default async function DashboardPage() {
     redirect("/login");
   }
 
-  const user = session.user as any;
+  const user = session.user;
   
   const businesses = await prisma.business.findMany({
     where: { ownerId: user.id },

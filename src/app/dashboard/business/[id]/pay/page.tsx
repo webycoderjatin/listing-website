@@ -33,7 +33,7 @@ export default function PaymentPage({ params }: { params: { id: string } }) {
         name: "LocalFind",
         description: "1 Year Business Listing Subscription",
         order_id: orderId,
-        handler: async function (response: any) {
+        handler: async function (response: { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string }) {
           const verifyRes = await fetch("/api/razorpay/verify", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -63,6 +63,7 @@ export default function PaymentPage({ params }: { params: { id: string } }) {
         },
       };
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const paymentObject = new (window as any).Razorpay(options);
       paymentObject.open();
       

@@ -79,7 +79,9 @@ export default async function BusinessProfilePage({ params }: Props) {
                   <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 flex items-center flex-wrap gap-2">
                     {business.name}
                     {business.verified && (
-                      <CheckCircle2 className="h-6 w-6 text-green-500" title="Verified Listing" />
+                      <span title="Verified Listing">
+                        <CheckCircle2 className="h-6 w-6 text-green-500" />
+                      </span>
                     )}
                   </h1>
                   <p className="text-lg text-gray-600 mt-2 font-medium">

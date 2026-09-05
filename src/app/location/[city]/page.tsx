@@ -41,7 +41,7 @@ export default async function LocationPage({ params }: { params: { city: string 
           <div className="bg-white p-10 rounded-xl border border-gray-200 text-center shadow-sm">
             <Store className="h-12 w-12 text-gray-400 mx-auto mb-4" />
             <h3 className="text-xl font-bold text-gray-900 mb-2">No businesses found</h3>
-            <p className="text-gray-500 mb-6">We couldn't find any listings in {cityName} right now.</p>
+            <p className="text-gray-500 mb-6">We couldn&apos;t find any listings in {cityName} right now.</p>
             <Link href="/list-your-business" className="text-blue-600 font-medium hover:underline">
               List your business in {cityName}
             </Link>

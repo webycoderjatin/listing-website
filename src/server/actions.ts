@@ -17,7 +17,7 @@ export async function createBusiness(formData: FormData) {
     throw new Error("Unauthorized");
   }
 
-  const user = session.user as any;
+  const user = session.user;
   const name = formData.get("name") as string;
   const categoryId = formData.get("categoryId") as string;
   const description = formData.get("description") as string;

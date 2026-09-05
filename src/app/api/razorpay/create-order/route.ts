@@ -22,7 +22,7 @@ export async function POST(req: Request) {
       where: { id: businessId },
     });
 
-    if (!business || business.ownerId !== (session.user as any).id) {
+    if (!business || business.ownerId !== session.user.id) {
       return NextResponse.json({ error: "Business not found or unauthorized" }, { status: 403 });
     }
 

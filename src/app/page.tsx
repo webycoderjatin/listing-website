@@ -43,7 +43,7 @@ export default function Home() {
           <div className="flex justify-between items-end mb-10">
             <div>
               <h2 className="text-3xl font-bold text-gray-900">Explore Categories</h2>
-              <p className="mt-2 text-lg text-gray-600">Find exactly what you're looking for</p>
+              <p className="mt-2 text-lg text-gray-600">Find exactly what you&apos;re looking for</p>
             </div>
             <Link href="/categories" className="text-blue-600 font-medium hover:text-blue-800 hidden sm:block">
               View all &rarr;

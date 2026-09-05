@@ -11,7 +11,7 @@ export default async function NewBusinessPage() {
     <div className="bg-white p-8 rounded-xl border border-gray-200 shadow-sm">
       <div className="mb-8 border-b pb-6">
         <h1 className="text-2xl font-bold text-gray-900">Add New Business</h1>
-        <p className="text-gray-500 mt-1">Fill in the details to create your listing. You'll be able to add photos and services after payment.</p>
+        <p className="text-gray-500 mt-1">Fill in the details to create your listing. You&apos;ll be able to add photos and services after payment.</p>
       </div>
 
       <form action={createBusiness} className="space-y-8">

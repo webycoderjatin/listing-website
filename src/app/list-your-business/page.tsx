@@ -32,7 +32,7 @@ export default function ListYourBusinessPage() {
       <div className="max-w-7xl mx-auto py-20 px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-3xl font-bold text-gray-900">Everything you need to grow online</h2>
-          <p className="mt-4 text-xl text-gray-600">More than just a directory, it's your local digital storefront.</p>
+          <p className="mt-4 text-xl text-gray-600">More than just a directory, it&apos;s your local digital storefront.</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10">

@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { Star, MapPin, Store } from "lucide-react";
@@ -18,7 +19,7 @@ export default async function SearchPage({
   const location = searchParams.location || "";
 
   // Build the Prisma where clause based on active filters
-  const where: any = {
+  const where: Prisma.BusinessWhereInput = {
     status: "APPROVED",
   };
 
@@ -56,7 +57,7 @@ export default async function SearchPage({
   });
 
   // Calculate average rating helper
-  const getAverageRating = (reviews: any[]) => {
+  const getAverageRating = (reviews: { rating: number }[]) => {
     if (reviews.length === 0) return null;
     const sum = reviews.reduce((acc, rev) => acc + rev.rating, 0);
     return (sum / reviews.length).toFixed(1);
@@ -111,7 +112,7 @@ export default async function SearchPage({
               <div className="bg-white p-10 rounded-xl border border-gray-200 text-center shadow-sm">
                 <Store className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                 <h3 className="text-xl font-bold text-gray-900 mb-2">No businesses found</h3>
-                <p className="text-gray-500 mb-6">Try adjusting your search or filters to find what you're looking for.</p>
+                <p className="text-gray-500 mb-6">Try adjusting your search or filters to find what you&apos;re looking for.</p>
                 <Link href="/search" className="text-blue-600 font-medium hover:underline">
                   Clear all filters
                 </Link>
