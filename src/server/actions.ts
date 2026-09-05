@@ -26,6 +26,7 @@ export async function createBusiness(_prevState: FormState, formData: FormData):
 
     const user = await prisma.user.findUnique({ where: { id: session.user.id }, select: { id: true, emailVerifiedAt: true } });
     if (!user?.emailVerifiedAt) return { error: "Verify your email before creating a listing." };
+    const user = session.user;
     const parsed = validateBusinessInput(Object.fromEntries(formData.entries()) as Record<string, string>);
     if ("error" in parsed) return parsed;
     const { name, categoryId, description, phone, whatsapp, website, address, locality, city, state, pincode } = parsed.values;
