@@ -26,16 +26,17 @@ export function Navbar() {
           </div>
           
           <div className="hidden sm:ml-6 sm:flex sm:items-center sm:space-x-4">
-            <div className="relative rounded-md shadow-sm hidden md:block">
+            <form action="/search" method="GET" className="relative rounded-md shadow-sm hidden md:block">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <Search className="h-4 w-4 text-gray-400" />
               </div>
               <input
                 type="text"
+                name="q"
                 className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-full py-2 bg-gray-50 px-4"
                 placeholder="Search businesses..."
               />
-            </div>
+            </form>
             
             <Link 
               href="/list-your-business" 

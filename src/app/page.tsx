@@ -14,19 +14,20 @@ export default function Home() {
             Find local services, restaurants, professionals, and more in your city.
           </p>
           
-          <div className="max-w-3xl mx-auto bg-white rounded-full p-2 flex shadow-lg">
+          <form action="/search" method="GET" className="max-w-3xl mx-auto bg-white rounded-full p-2 flex shadow-lg">
             <div className="flex-grow flex items-center px-4">
               <Search className="h-5 w-5 text-gray-400 mr-3" />
               <input 
                 type="text" 
+                name="q"
                 placeholder="Search businesses, services or locations" 
                 className="w-full py-3 px-2 text-gray-900 focus:outline-none focus:ring-0 bg-transparent text-lg"
               />
             </div>
-            <button className="bg-blue-600 text-white px-8 py-3 rounded-full font-medium hover:bg-blue-700 transition-colors">
+            <button type="submit" className="bg-blue-600 text-white px-8 py-3 rounded-full font-medium hover:bg-blue-700 transition-colors">
               Search
             </button>
-          </div>
+          </form>
           
           <div className="mt-10 flex flex-wrap justify-center gap-4 text-sm font-medium">
             <span className="text-blue-200">Popular:</span>
@@ -97,7 +98,7 @@ export default function Home() {
                     <MapPin className="h-4 w-4 mr-1" />
                     Sector 70, Mohali
                   </div>
-                  <Link href="/business/mohali/dentists/sharma-dental-clinic" className="block w-full text-center py-2 border border-blue-600 text-blue-600 rounded-lg font-medium hover:bg-blue-50 transition-colors">
+                  <Link href="/business/mohali/healthcare/sharma-dental-clinic-mohali" className="block w-full text-center py-2 border border-blue-600 text-blue-600 rounded-lg font-medium hover:bg-blue-50 transition-colors">
                     View Profile
                   </Link>
                 </div>

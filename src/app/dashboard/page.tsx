@@ -83,12 +83,12 @@ export default async function DashboardPage() {
                         Complete Payment
                       </Link>
                     ) : (
-                      <Link 
-                        href={`/dashboard/business/${business.id}/edit`}
-                        className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50"
+                      <span 
+                        className="px-4 py-2 border border-gray-300 text-gray-400 rounded-lg text-sm font-medium cursor-not-allowed"
+                        title="Editing is not available yet."
                       >
                         Edit
-                      </Link>
+                      </span>
                     )}
                     {business.status === 'APPROVED' && (
                       <Link 

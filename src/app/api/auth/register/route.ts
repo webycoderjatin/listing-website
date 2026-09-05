@@ -31,8 +31,7 @@ export async function POST(req: Request) {
         name,
         email,
         password: hashedPassword,
-        // First user gets admin, otherwise normal user (for mvp testing purposes)
-        role: (await prisma.user.count()) === 0 ? "ADMIN" : "BUSINESS_OWNER",
+        role: "BUSINESS_OWNER",
       },
     });
 

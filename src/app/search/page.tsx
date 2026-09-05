@@ -12,11 +12,19 @@ export const metadata: Metadata = {
 export default async function SearchPage({
   searchParams,
 }: {
-  searchParams: { q?: string; category?: string; location?: string };
+  searchParams: { q?: string | string[]; category?: string | string[]; location?: string | string[]; page?: string | string[] };
 }) {
-  const query = searchParams.q || "";
-  const category = searchParams.category || "";
-  const location = searchParams.location || "";
+  const queryParam = Array.isArray(searchParams.q) ? searchParams.q[0] : searchParams.q;
+  const categoryParam = Array.isArray(searchParams.category) ? searchParams.category[0] : searchParams.category;
+  const locationParam = Array.isArray(searchParams.location) ? searchParams.location[0] : searchParams.location;
+  const pageParam = Array.isArray(searchParams.page) ? searchParams.page[0] : searchParams.page;
+
+  const query = queryParam || "";
+  const category = categoryParam || "";
+  const location = locationParam || "";
+  const page = parseInt(pageParam || "1", 10);
+  const take = 20;
+  const skip = (page - 1) * take;
 
   // Build the Prisma where clause based on active filters
   const where: Prisma.BusinessWhereInput = {
@@ -50,6 +58,8 @@ export default async function SearchPage({
       reviews: true,
     },
     orderBy: { createdAt: "desc" },
+    take,
+    skip,
   });
 
   const categories = await prisma.category.findMany({

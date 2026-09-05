@@ -83,7 +83,7 @@ export default async function CategoryPage({ params }: { params: { slug: string 
                     </div>
                     
                     <Link 
-                      href={`/business/${business.city?.toLowerCase()}/${business.category.slug}/${business.slug}`} 
+                      href={`/business/${(business.city || 'unlisted').toLowerCase()}/${business.category.slug}/${business.slug}`} 
                       className="block w-full text-center py-2 border border-blue-600 text-blue-600 rounded-lg font-medium hover:bg-blue-50 transition-colors"
                     >
                       View Profile

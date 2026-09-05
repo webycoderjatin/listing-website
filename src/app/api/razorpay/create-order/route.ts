@@ -40,7 +40,7 @@ export async function POST(req: Request) {
     await prisma.payment.create({
       data: {
         businessId,
-        razorpayOrderId: order.id,
+        razorpayOrderId: order.id as string,
         amount,
         currency,
         status: "PENDING",

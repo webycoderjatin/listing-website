@@ -81,6 +81,7 @@ model Business {
   payments    Payment[]
   reviews     Review[]
 
+  @@index([ownerId])
   @@index([city])
   @@index([categoryId])
   @@index([status])

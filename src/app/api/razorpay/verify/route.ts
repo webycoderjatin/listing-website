@@ -18,9 +18,21 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
     }
 
+    const payment = await prisma.payment.findUnique({
+      where: { razorpayOrderId: razorpay_order_id },
+    });
+
+    if (!payment) {
+      return NextResponse.json({ error: "Payment not found" }, { status: 404 });
+    }
+
+    if (payment.status === "SUCCESS") {
+      return NextResponse.json({ error: "Payment already verified" }, { status: 400 });
+    }
+
     // Update payment
     await prisma.payment.update({
-      where: { razorpayOrderId: razorpay_order_id },
+      where: { id: payment.id },
       data: {
         razorpayPaymentId: razorpay_payment_id,
         razorpaySignature: razorpay_signature,
@@ -31,7 +43,7 @@ export async function POST(req: Request) {
 
     // Update business status
     await prisma.business.update({
-      where: { id: businessId },
+      where: { id: payment.businessId },
       data: {
         status: "PENDING_APPROVAL",
       }

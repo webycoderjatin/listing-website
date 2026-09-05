@@ -1,8 +1,19 @@
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
+import { redirect } from "next/navigation";
+
+async function requireAdmin() {
+  const session = await getServerSession(authOptions);
+  if (!session || session.user?.role !== "ADMIN") {
+    throw new Error("Unauthorized");
+  }
+}
 
 async function approveBusiness(formData: FormData) {
   "use server";
+  await requireAdmin();
   const id = formData.get("id") as string;
   await prisma.business.update({
     where: { id },
@@ -13,6 +24,7 @@ async function approveBusiness(formData: FormData) {
 
 async function rejectBusiness(formData: FormData) {
   "use server";
+  await requireAdmin();
   const id = formData.get("id") as string;
   await prisma.business.update({
     where: { id },
@@ -21,10 +33,25 @@ async function rejectBusiness(formData: FormData) {
   revalidatePath("/admin/businesses");
 }
 
-export default async function AdminBusinessesPage() {
+export default async function AdminBusinessesPage({
+  searchParams,
+}: {
+  searchParams: { page?: string };
+}) {
+  const session = await getServerSession(authOptions);
+  if (!session || session.user?.role !== "ADMIN") {
+    redirect("/");
+  }
+
+  const page = parseInt(searchParams.page || "1");
+  const take = 50;
+  const skip = (page - 1) * take;
+
   const businesses = await prisma.business.findMany({
     include: { owner: true, category: true },
-    orderBy: { createdAt: 'desc' }
+    orderBy: { createdAt: 'desc' },
+    take,
+    skip,
   });
 
   return (
