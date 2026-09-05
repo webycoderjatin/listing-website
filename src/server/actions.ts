@@ -6,6 +6,8 @@ import { authOptions } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { slugify } from "@/lib/text";
+import { validateBusinessInput } from "@/lib/validation";
+import { Prisma } from "@prisma/client";
 
 type FormState = { error?: string } | null;
 
@@ -22,32 +24,11 @@ export async function createBusiness(_prevState: FormState, formData: FormData):
       return { error: "Unauthorized" };
     }
 
-    const user = session.user;
-    const read = (key: string) => String(formData.get(key) ?? "").trim();
-    const name = read("name");
-    const categoryId = read("categoryId");
-    const description = read("description");
-    
-    if (!name || !categoryId) {
-      return { error: "Name and Category are required." };
-    }
-
-    const phone = read("phone");
-    const whatsapp = read("whatsapp");
-    const website = read("website");
-    const address = read("address");
-    const locality = read("locality");
-    const city = read("city");
-    const state = read("state");
-    const pincode = read("pincode");
-    
-    if (!city) {
-      return { error: "City is required." };
-    }
-
-    if (!description || !address || !locality || !state || !pincode) {
-      return { error: "Description and all location fields are required." };
-    }
+    const user = await prisma.user.findUnique({ where: { id: session.user.id }, select: { id: true, emailVerifiedAt: true } });
+    if (!user?.emailVerifiedAt) return { error: "Verify your email before creating a listing." };
+    const parsed = validateBusinessInput(Object.fromEntries(formData.entries()) as Record<string, string>);
+    if ("error" in parsed) return parsed;
+    const { name, categoryId, description, phone, whatsapp, website, address, locality, city, state, pincode } = parsed.values;
 
     const category = await prisma.category.findUnique({ where: { id: categoryId } });
     if (!category) {
@@ -64,26 +45,22 @@ export async function createBusiness(_prevState: FormState, formData: FormData):
       slug = `${baseSlug}-${suffix}`;
     }
 
-    business = await prisma.business.create({
-      data: {
-        ownerId: user.id,
-        name,
-        slug,
-        categoryId,
-        description,
-        phone: phone || null,
-        whatsapp: whatsapp || null,
-        website: website || null,
-        address,
-        locality,
-        city,
-        state,
-        pincode,
-        status: "PENDING_PAYMENT", 
-        seoTitle: `${name} | ${city}`,
-        seoDescription: description ? description.substring(0, 150) : null,
+    try {
+      business = await prisma.business.create({
+        data: {
+          ownerId: user.id, name, slug, categoryId, description,
+          phone: phone || null, whatsapp: whatsapp || null, website: website || null,
+          address, locality, city, state, pincode, status: "PENDING_PAYMENT",
+          seoTitle: `${name} | ${city}`, seoDescription: description.substring(0, 150),
+        }
+      });
+    } catch (error) {
+      // A concurrent request can claim a candidate slug after the availability check.
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+        return { error: "A similar listing was just created. Please submit again." };
       }
-    });
+      throw error;
+    }
 
   } catch (err) {
     console.error("Create business error:", err);

@@ -91,7 +91,7 @@ export default function Home() {
             {/* Featured Large Card */}
             <Link href="/category/restaurants" className="col-span-2 md:col-span-8 lg:col-span-6 relative h-72 rounded-3xl overflow-hidden group shadow-md hover:shadow-xl transition-all border border-slate-100">
               <div className="absolute inset-0 bg-slate-900/20 group-hover:bg-slate-900/10 transition-colors z-10"></div>
-              <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1200&q=80" alt="Restaurants" className="absolute inset-0 w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700" />
+              <Image src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1200&q=80" alt="Restaurants" fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover transform group-hover:scale-105 transition-transform duration-700" />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/20 to-transparent z-20"></div>
               <div className="absolute bottom-0 left-0 p-8 z-30">
                 <span className="inline-block px-3 py-1 mb-3 rounded-full bg-white/20 backdrop-blur-md text-white text-xs font-bold uppercase tracking-wider border border-white/20">Popular</span>
@@ -113,7 +113,7 @@ export default function Home() {
 
             {/* Square Image Card */}
             <Link href="/category/salons" className="col-span-1 md:col-span-12 lg:col-span-3 relative h-72 rounded-3xl overflow-hidden group shadow-md hover:shadow-xl transition-all border border-slate-100">
-              <img src="https://images.unsplash.com/photo-1560066984-138dadb4c035?w=800&q=80" alt="Salons" className="absolute inset-0 w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700" />
+              <Image src="https://images.unsplash.com/photo-1560066984-138dadb4c035?w=800&q=80" alt="Salons" fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover transform group-hover:scale-105 transition-transform duration-700" />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent z-20"></div>
               <div className="absolute bottom-0 left-0 p-6 z-30 w-full">
                 <h3 className="text-xl font-bold text-white mb-1">Beauty & Spas</h3>
@@ -160,7 +160,7 @@ export default function Home() {
             {/* Card 1 */}
             <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-premium-hover transition-all group flex flex-col h-full">
               <div className="relative h-56 overflow-hidden">
-                <img src="https://images.unsplash.com/photo-1606811841689-23dfddce3e95?w=800&q=80" alt="Dental Clinic" className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500" />
+                <Image src="https://images.unsplash.com/photo-1606811841689-23dfddce3e95?w=800&q=80" alt="Dental Clinic" fill sizes="(max-width: 768px) 100vw, 33vw" className="object-cover transform group-hover:scale-105 transition-transform duration-500" />
                 <div className="absolute top-4 left-4">
                   <span className="bg-white/95 backdrop-blur shadow-sm px-3 py-1 rounded-full text-xs font-bold text-slate-700 uppercase tracking-wider">Healthcare</span>
                 </div>
@@ -185,7 +185,7 @@ export default function Home() {
             {/* Card 2 */}
             <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-premium-hover transition-all group flex flex-col h-full">
               <div className="relative h-56 overflow-hidden">
-                <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&q=80" alt="Restaurant" className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500" />
+                <Image src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&q=80" alt="Restaurant" fill sizes="(max-width: 768px) 100vw, 33vw" className="object-cover transform group-hover:scale-105 transition-transform duration-500" />
                 <div className="absolute top-4 left-4">
                   <span className="bg-white/95 backdrop-blur shadow-sm px-3 py-1 rounded-full text-xs font-bold text-slate-700 uppercase tracking-wider">Restaurant</span>
                 </div>
@@ -210,7 +210,7 @@ export default function Home() {
             {/* Card 3 */}
             <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-premium-hover transition-all group flex flex-col h-full hidden lg:flex">
               <div className="relative h-56 overflow-hidden">
-                <img src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&q=80" alt="Gym" className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500" />
+                <Image src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&q=80" alt="Gym" fill sizes="(max-width: 768px) 100vw, 33vw" className="object-cover transform group-hover:scale-105 transition-transform duration-500" />
                 <div className="absolute top-4 left-4">
                   <span className="bg-white/95 backdrop-blur shadow-sm px-3 py-1 rounded-full text-xs font-bold text-slate-700 uppercase tracking-wider">Fitness</span>
                 </div>
@@ -298,7 +298,7 @@ export default function Home() {
               {/* Decorative floating UI elements */}
               <div className="relative z-10 bg-white rounded-[2rem] p-4 shadow-2xl shadow-blue-900/20 border border-slate-200/20 transform rotate-2 hover:rotate-0 transition-transform duration-500 max-w-md mx-auto lg:ml-auto">
                 <div className="bg-slate-50 rounded-2xl overflow-hidden border border-slate-100">
-                  <img src="https://images.unsplash.com/photo-1606811841689-23dfddce3e95?w=800&q=80" alt="Preview" className="w-full h-48 object-cover" />
+                  <Image src="https://images.unsplash.com/photo-1606811841689-23dfddce3e95?w=800&q=80" alt="Preview" width={800} height={192} sizes="(max-width: 768px) 100vw, 400px" className="w-full h-48 object-cover" />
                   <div className="p-6">
                     <div className="flex justify-between items-start mb-4">
                       <div>

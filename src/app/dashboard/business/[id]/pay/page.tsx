@@ -33,7 +33,10 @@ export default function PaymentPage({ params }: { params: Promise<{ id: string }
         body: JSON.stringify({ businessId: unwrappedParams.id }),
       });
 
-      if (!res.ok) throw new Error("Failed to create order");
+      if (!res.ok) {
+        const data = await res.json().catch(() => null) as { error?: string } | null;
+        throw new Error(data?.error || "Failed to create order");
+      }
       
       const { orderId, amount, currency } = await res.json();
 
@@ -63,7 +66,8 @@ export default function PaymentPage({ params }: { params: Promise<{ id: string }
               router.refresh();
             }, 3000);
           } else {
-            setError("Payment verification failed. Please contact support.");
+            const data = await verifyRes.json().catch(() => null) as { error?: string } | null;
+            setError(data?.error || "Payment verification failed. Please contact support.");
           }
         },
         prefill: {

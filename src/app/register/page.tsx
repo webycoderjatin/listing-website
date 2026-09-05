@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Store, ArrowRight, User, Mail, Lock } from "lucide-react";
+import { ArrowRight, User, Mail, Lock } from "lucide-react";
+import Image from "next/image";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -30,7 +31,7 @@ export default function RegisterPage() {
         const safeCallbackUrl = callbackUrl?.startsWith("/") && !callbackUrl.startsWith("//")
           ? `&callbackUrl=${encodeURIComponent(callbackUrl)}`
           : "";
-        router.push(`/login?registered=true${safeCallbackUrl}`);
+        router.push(`/verify-email?email=${encodeURIComponent(email)}${safeCallbackUrl}`);
       } else {
         const data = await res.json();
         setError(data.message || "Registration failed");
@@ -52,7 +53,7 @@ export default function RegisterPage() {
         
         <div className="text-center">
           <Link href="/" className="inline-flex justify-center items-center gap-2.5 mb-8 group">
-            <img src="/logo.png" alt="Show Listing" className="h-12 w-auto group-hover:scale-105 transition-transform" />
+            <Image src="/logo.png" alt="Show Listing" width={160} height={48} className="h-12 w-auto group-hover:scale-105 transition-transform" />
           </Link>
           <h2 className="mt-2 text-3xl font-extrabold text-slate-900 tracking-tight">
             Create an account

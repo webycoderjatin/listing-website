@@ -3,6 +3,8 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import Razorpay from "razorpay";
 import { prisma } from "@/lib/prisma";
+import { isExpectedListingPayment, LISTING_CURRENCY, LISTING_PRICE_PAISE } from "@/lib/listing";
+import { Prisma } from "@prisma/client";
 
 export async function POST(req: Request) {
   try {
@@ -11,8 +13,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { businessId } = await req.json() as { businessId?: string };
-    if (!businessId) {
+    const { businessId } = await req.json() as { businessId?: unknown };
+    if (typeof businessId !== "string" || !businessId.trim()) {
       return NextResponse.json({ error: "Business id is required" }, { status: 400 });
     }
 
@@ -33,6 +35,10 @@ export async function POST(req: Request) {
       orderBy: { createdAt: "desc" },
     });
     if (existingPayment) {
+      if (!isExpectedListingPayment(existingPayment.amount, existingPayment.currency)) {
+        console.error("Pending payment amount does not match the listing price", { paymentId: existingPayment.id });
+        return NextResponse.json({ error: "Payment amount mismatch" }, { status: 409 });
+      }
       return NextResponse.json({
         orderId: existingPayment.razorpayOrderId,
         amount: existingPayment.amount,
@@ -47,8 +53,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Payments are not configured" }, { status: 503 });
     }
 
-    const amount = 39900; // ₹399.00 in paise
-    const currency = "INR";
+    const amount = LISTING_PRICE_PAISE;
+    const currency = LISTING_CURRENCY;
 
     const options = {
       amount,
@@ -59,15 +65,17 @@ export async function POST(req: Request) {
     const razorpay = new Razorpay({ key_id: keyId, key_secret: keySecret });
     const order = await razorpay.orders.create(options);
 
-    await prisma.payment.create({
-      data: {
-        businessId,
-        razorpayOrderId: order.id as string,
-        amount,
-        currency,
-        status: "PENDING",
+    try {
+      await prisma.payment.create({
+        data: { businessId, razorpayOrderId: order.id as string, amount, currency, status: "PENDING" }
+      });
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+        const pendingPayment = await prisma.payment.findFirst({ where: { businessId, status: "PENDING" }, orderBy: { createdAt: "desc" } });
+        if (pendingPayment) return NextResponse.json({ orderId: pendingPayment.razorpayOrderId, amount: pendingPayment.amount, currency: pendingPayment.currency });
       }
-    });
+      throw error;
+    }
 
     return NextResponse.json({ orderId: order.id, amount, currency });
   } catch (error) {

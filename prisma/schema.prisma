@@ -36,6 +36,11 @@ model User {
   email         String    @unique
   password      String?   
   role          Role      @default(USER)
+  emailVerifiedAt DateTime?
+  verificationCodeHash String?
+  verificationExpiresAt DateTime?
+  verificationAttempts Int @default(0)
+  verificationSentAt DateTime?
   businesses    Business[]
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
@@ -70,6 +75,18 @@ model Business {
   
   seoTitle        String?
   seoDescription  String?
+  tagline         String?
+  businessType    String?
+  yearEstablished Int?
+  secondaryPhone  String?
+  country         String?
+  landmark        String?
+  serviceAreas    String[] @default([])
+  amenities       String[] @default([])
+  instagramUrl    String?
+  facebookUrl     String?
+  youtubeUrl      String?
+  linkedinUrl     String?
   
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
@@ -103,6 +120,7 @@ model Media {
   url         String
   thumbnail   String?
   sortOrder   Int       @default(0)
+  isCover     Boolean   @default(false)
 }
 
 model Service {
@@ -112,6 +130,9 @@ model Service {
   name        String
   description String?   @db.Text
   price       String?
+  duration    String?
+  group       String?
+  sortOrder   Int       @default(0)
 }
 
 model BusinessHours {
@@ -122,6 +143,8 @@ model BusinessHours {
   openTime    String?   // "09:00"
   closeTime   String?   // "18:00"
   closed      Boolean   @default(false)
+  allDay      Boolean   @default(false)
+  sortOrder   Int       @default(0)
 }
 
 model Payment {

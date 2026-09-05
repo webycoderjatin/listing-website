@@ -1,4 +1,4 @@
-# LocalFind MVP
+# Show Listing
 
 A production-ready local business directory MVP.
 
@@ -64,7 +64,9 @@ A production-ready local business directory MVP.
    npm run dev
    ```
 
-## Test Accounts
+## Development-only test accounts
+
+`prisma/seed.ts` refuses to run when `NODE_ENV=production`. These credentials are for a local development database only and must never be configured in a deployed environment.
 
 **Admin User:**
 - Email: `admin@localfind.com`

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useSession, signOut } from "next-auth/react";
 import { Search, Menu, LogOut } from "lucide-react";
 import { useState } from "react";
@@ -15,7 +16,7 @@ export function Navbar() {
         <div className="flex justify-between items-center h-20">
           <div className="flex items-center gap-8">
             <Link href="/" className="flex-shrink-0 flex items-center group">
-              <img src="/logo.png" alt="Show Listing" className="h-15 w-auto mr-3 group-hover:scale-105 transition-transform" />
+              <Image src="/logo.png" alt="Show Listing" width={200} height={60} className="h-15 w-auto mr-3 group-hover:scale-105 transition-transform" />
             </Link>
             
             <div className="hidden sm:flex sm:space-x-1">
