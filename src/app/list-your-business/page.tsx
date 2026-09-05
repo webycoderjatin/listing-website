@@ -21,6 +21,8 @@ async function startBusinessOnboarding() {
   if (!session?.user?.id) {
     redirect("/login?callbackUrl=/list-your-business");
   }
+  const user = await prisma.user.findUnique({ where: { id: session.user.id }, select: { emailVerifiedAt: true } });
+  if (!user?.emailVerifiedAt) redirect("/verify-email?email=" + encodeURIComponent(session.user.email ?? ""));
 
   if (session.user.role === "ADMIN") {
     redirect("/admin");

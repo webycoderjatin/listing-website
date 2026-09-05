@@ -31,7 +31,7 @@ export default function RegisterPage() {
         const safeCallbackUrl = callbackUrl?.startsWith("/") && !callbackUrl.startsWith("//")
           ? `&callbackUrl=${encodeURIComponent(callbackUrl)}`
           : "";
-        router.push(`/login?registered=true${safeCallbackUrl}`);
+        router.push(`/verify-email?email=${encodeURIComponent(email)}${safeCallbackUrl}`);
       } else {
         const data = await res.json();
         setError(data.message || "Registration failed");

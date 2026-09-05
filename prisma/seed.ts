@@ -19,6 +19,7 @@ async function main() {
       name: 'Admin User',
       password: adminPassword,
       role: 'ADMIN',
+      emailVerifiedAt: new Date(),
     },
   });
   console.log('Admin user created');
@@ -61,6 +62,7 @@ async function main() {
       name: 'Rahul Sharma',
       password: ownerPassword,
       role: 'BUSINESS_OWNER',
+      emailVerifiedAt: new Date(),
     },
   });
 
@@ -72,6 +74,7 @@ async function main() {
       name: 'Priya Patel',
       password: ownerPassword,
       role: 'BUSINESS_OWNER',
+      emailVerifiedAt: new Date(),
     },
   });
 

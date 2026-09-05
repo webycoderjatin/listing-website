@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { Prisma } from "@prisma/client";
 import { readBoundedText } from "@/lib/validation";
+import { issueVerificationCode } from "@/lib/email-verification";
 
 export async function POST(req: Request) {
   try {
@@ -48,10 +49,12 @@ export async function POST(req: Request) {
       throw error;
     }
 
-    return NextResponse.json(
-      { message: "User created successfully" },
-      { status: 201 }
-    );
+    try {
+      await issueVerificationCode(normalizedEmail);
+    } catch {
+      return NextResponse.json({ message: "Account created, but we could not send a verification code. Please use resend." }, { status: 202 });
+    }
+    return NextResponse.json({ message: "Account created. Check your email for a verification code." }, { status: 201 });
   } catch (error) {
     console.error("Registration error:", error);
     return NextResponse.json(
