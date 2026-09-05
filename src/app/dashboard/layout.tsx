@@ -24,7 +24,14 @@ export default function DashboardLayout({
   }, [status, router]);
 
   if (status === "loading") {
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <svg className="animate-spin h-8 w-8 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+      </div>
+    );
   }
 
   if (!session || session.user?.role !== "BUSINESS_OWNER") {
@@ -32,28 +39,28 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="min-h-[calc(100vh-64px)] flex bg-gray-50">
+    <div className="min-h-[calc(100vh-80px)] flex bg-slate-50">
       {/* Sidebar */}
-      <aside className="w-64 bg-white border-r hidden md:block">
-        <div className="p-6">
-          <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">Dashboard</p>
-          <nav className="space-y-2">
+      <aside className="w-72 bg-white border-r border-slate-200 hidden lg:block sticky top-20 h-[calc(100vh-80px)] overflow-y-auto">
+        <div className="p-8">
+          <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-6">Menu</p>
+          <nav className="space-y-3">
             <Link 
               href="/dashboard" 
-              className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg ${
-                pathname === '/dashboard' ? 'bg-blue-50 text-blue-700' : 'text-gray-700 hover:bg-gray-100'
+              className={`flex items-center px-4 py-3.5 text-sm font-bold rounded-xl transition-all ${
+                pathname === '/dashboard' ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20' : 'text-slate-600 hover:bg-slate-100'
               }`}
             >
-              <LayoutDashboard className="h-5 w-5 mr-3" />
+              <LayoutDashboard className={`h-5 w-5 mr-3 ${pathname === '/dashboard' ? 'text-white' : 'text-slate-400'}`} />
               Overview
             </Link>
             <Link 
               href="/dashboard/business/new" 
-              className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg ${
-                pathname === '/dashboard/business/new' ? 'bg-blue-50 text-blue-700' : 'text-gray-700 hover:bg-gray-100'
+              className={`flex items-center px-4 py-3.5 text-sm font-bold rounded-xl transition-all ${
+                pathname === '/dashboard/business/new' ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20' : 'text-slate-600 hover:bg-slate-100'
               }`}
             >
-              <Store className="h-5 w-5 mr-3" />
+              <Store className={`h-5 w-5 mr-3 ${pathname === '/dashboard/business/new' ? 'text-white' : 'text-slate-400'}`} />
               Add Business
             </Link>
           </nav>
@@ -61,10 +68,8 @@ export default function DashboardLayout({
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 p-8">
-        <div className="max-w-4xl mx-auto">
-          {children}
-        </div>
+      <main className="flex-1 p-6 md:p-10 lg:p-12 overflow-x-hidden">
+        {children}
       </main>
     </div>
   );

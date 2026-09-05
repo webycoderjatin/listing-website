@@ -1,15 +1,15 @@
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
-import { Star, MapPin, Store } from "lucide-react";
+import { Star, MapPin, Store, Search as SearchIcon, Filter, Map, Clock, ShieldCheck } from "lucide-react";
 import type { Metadata } from "next";
 import { slugify } from "@/lib/text";
 
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Search Businesses | LocalFind",
-  description: "Search for local businesses, restaurants, healthcare, and more on LocalFind.",
+  title: "Search Businesses | Show Listing",
+  description: "Search for local businesses, restaurants, healthcare, and more on Show Listing.",
 };
 
 export default async function SearchPage({
@@ -79,111 +79,146 @@ export default async function SearchPage({
   };
 
   return (
-    <div className="bg-gray-50 min-h-screen py-10">
+    <div className="bg-slate-50 min-h-screen py-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">
-          {query ? `Search results for "${query}"` : "Explore Businesses"}
-        </h1>
+        
+        {/* Page Header */}
+        <div className="mb-10">
+          <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 mb-2 tracking-tight">
+            {query ? `Results for "${query}"` : "Explore Local Businesses"}
+          </h1>
+          <p className="text-slate-500 font-medium text-lg">
+            {businesses.length} {businesses.length === 1 ? 'place' : 'places'} found {location ? `in ${location}` : 'near you'}
+          </p>
+        </div>
 
-        <div className="flex flex-col md:flex-row gap-8">
+        <div className="flex flex-col lg:flex-row gap-8 items-start">
+          
           {/* Filters Sidebar */}
-          <div className="w-full md:w-64 flex-shrink-0">
-            <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm sticky top-24">
-              <h2 className="text-lg font-bold text-gray-900 mb-4">Filters</h2>
+          <div className="w-full lg:w-80 flex-shrink-0">
+            <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm sticky top-28">
+              <div className="flex items-center gap-2 mb-6 pb-4 border-b border-slate-100">
+                <Filter className="w-5 h-5 text-slate-400" />
+                <h2 className="text-lg font-bold text-slate-900">Filters</h2>
+              </div>
               
               <form action="/search" method="GET" className="space-y-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Search</label>
-                  <input
-                    type="text"
-                    name="q"
-                    defaultValue={query}
-                    placeholder="Keywords..."
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                  />
+                  <label className="block text-sm font-bold text-slate-700 mb-2">Search</label>
+                  <div className="relative">
+                    <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                    <input
+                      type="text"
+                      name="q"
+                      defaultValue={query}
+                      placeholder="Keywords..."
+                      className="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors text-slate-900 placeholder:text-slate-400"
+                    />
+                  </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
-                  <select name="category" defaultValue={category} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white">
+                  <label className="block text-sm font-bold text-slate-700 mb-2">Category</label>
+                  <select 
+                    name="category" 
+                    defaultValue={category} 
+                    className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors text-slate-900 appearance-none"
+                  >
                     <option value="">All categories</option>
                     {categories.map((item) => <option key={item.id} value={item.slug}>{item.name}</option>)}
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Location</label>
-                  <input
-                    type="text"
-                    name="location"
-                    defaultValue={location}
-                    placeholder="City (e.g. Mohali)"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                  />
+                  <label className="block text-sm font-bold text-slate-700 mb-2">Location</label>
+                  <div className="relative">
+                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                    <input
+                      type="text"
+                      name="location"
+                      defaultValue={location}
+                      placeholder="City or Area"
+                      className="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors text-slate-900 placeholder:text-slate-400"
+                    />
+                  </div>
                 </div>
                 
-                <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded-md font-medium hover:bg-blue-700">
+                <button type="submit" className="w-full bg-slate-900 text-white py-3 rounded-xl font-bold hover:bg-slate-800 transition-colors shadow-md">
                   Apply Filters
                 </button>
+                
+                {(query || category || location) && (
+                  <Link href="/search" className="block text-center w-full text-slate-500 font-semibold text-sm hover:text-slate-700 mt-4">
+                    Clear all filters
+                  </Link>
+                )}
               </form>
             </div>
           </div>
 
           {/* Results List */}
-          <div className="flex-grow">
+          <div className="flex-grow w-full">
             {businesses.length === 0 ? (
-              <div className="bg-white p-10 rounded-xl border border-gray-200 text-center shadow-sm">
-                <Store className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-xl font-bold text-gray-900 mb-2">No businesses found</h3>
-                <p className="text-gray-500 mb-6">Try adjusting your search or filters to find what you&apos;re looking for.</p>
-                <Link href="/search" className="text-blue-600 font-medium hover:underline">
+              <div className="bg-white p-12 rounded-3xl border border-slate-200 text-center shadow-sm">
+                <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <Store className="h-10 w-10 text-slate-300" />
+                </div>
+                <h3 className="text-2xl font-bold text-slate-900 mb-2">No businesses found</h3>
+                <p className="text-slate-500 mb-8 max-w-md mx-auto text-lg">We couldn&apos;t find any results matching your current filters. Try adjusting them or explore other categories.</p>
+                <Link href="/search" className="inline-flex items-center justify-center px-6 py-3 bg-blue-50 text-blue-600 font-bold rounded-xl hover:bg-blue-100 transition-colors">
                   Clear all filters
                 </Link>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                 {businesses.map((business) => {
                   const avgRating = getAverageRating(business.reviews);
-                  const imageUrl = business.media[0]?.url || null;
+                  const imageUrl = business.media[0]?.url || "https://images.unsplash.com/photo-1556761175-5973dc0f32b7?w=800&q=80";
 
                   return (
-                    <div key={business.id} className="bg-white rounded-xl overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow">
-                      <div className="h-48 bg-gray-100 relative">
-                        {imageUrl ? (
-                          <img src={imageUrl} alt={business.name} className="w-full h-full object-cover" />
-                        ) : (
-                          <div className="absolute inset-0 flex items-center justify-center text-gray-400">
-                            <Store className="h-12 w-12" />
-                          </div>
-                        )}
-                        {business.verified && (
-                          <div className="absolute top-2 right-2 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow">
-                            Verified
-                          </div>
-                        )}
+                    <div key={business.id} className="bg-white rounded-3xl overflow-hidden border border-slate-200 hover:shadow-premium-hover transition-all group flex flex-col h-full relative">
+                      {business.verified && (
+                        <div className="absolute top-4 right-4 z-10 bg-white/95 backdrop-blur shadow-sm px-2.5 py-1 rounded-full flex items-center gap-1">
+                          <ShieldCheck className="w-3.5 h-3.5 text-blue-600" />
+                          <span className="text-[10px] font-bold text-slate-900 uppercase tracking-wider">Verified</span>
+                        </div>
+                      )}
+                      
+                      <div className="relative h-48 overflow-hidden bg-slate-100">
+                        <img src={imageUrl} alt={business.name} className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent"></div>
+                        <div className="absolute bottom-4 left-4">
+                          <span className="bg-blue-600 text-white shadow-sm px-2.5 py-1 rounded-lg text-xs font-bold tracking-wide">{business.category.name}</span>
+                        </div>
                       </div>
-                      <div className="p-5">
-                        <div className="flex justify-between items-start mb-2">
-                          <h3 className="text-lg font-bold text-gray-900 line-clamp-1">{business.name}</h3>
-                          {avgRating && (
-                            <span className="flex items-center text-sm font-medium text-yellow-500 bg-yellow-50 px-2 py-1 rounded flex-shrink-0 ml-2">
-                              <Star className="h-3 w-3 mr-1 fill-current" /> {avgRating}
-                            </span>
+                      
+                      <div className="p-6 flex flex-col flex-grow">
+                        <div className="flex justify-between items-start mb-2 gap-4">
+                          <h3 className="text-xl font-bold text-slate-900 line-clamp-1 group-hover:text-blue-600 transition-colors">
+                            <Link href={`/business/${slugify(business.city ?? "")}/${business.category.slug}/${business.slug}`} className="focus:outline-none">
+                              <span className="absolute inset-0" aria-hidden="true" />
+                              {business.name}
+                            </Link>
+                          </h3>
+                          {avgRating ? (
+                            <div className="flex items-center gap-1 bg-green-50 text-green-700 px-2 py-1 rounded-md text-sm font-bold shrink-0">
+                              <Star className="w-3.5 h-3.5 fill-current" /> {avgRating}
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-1 bg-slate-50 text-slate-500 px-2 py-1 rounded-md text-xs font-bold shrink-0">
+                              New
+                            </div>
                           )}
                         </div>
-                        <p className="text-gray-500 text-sm mb-3">{business.category.name}</p>
                         
-                        <div className="flex items-center text-gray-600 text-sm mb-5">
-                          <MapPin className="h-4 w-4 mr-1 flex-shrink-0" />
-                          <span className="line-clamp-1">{business.locality ? `${business.locality}, ` : ""}{business.city}</span>
+                        <p className="text-slate-500 text-sm mb-5 line-clamp-2">{business.description || 'No description available for this business.'}</p>
+                        
+                        <div className="mt-auto space-y-2">
+                          <div className="flex items-center text-slate-600 text-sm font-medium">
+                            <MapPin className="w-4 h-4 mr-2 text-slate-400 shrink-0" />
+                            <span className="line-clamp-1">{business.locality ? `${business.locality}, ` : ""}{business.city || 'Location unavailable'}</span>
+                          </div>
                         </div>
-                        
-                        <Link 
-                          href={`/business/${slugify(business.city ?? "")}/${business.category.slug}/${business.slug}`}
-                          className="block w-full text-center py-2 border border-blue-600 text-blue-600 rounded-lg font-medium hover:bg-blue-50 transition-colors"
-                        >
-                          View Profile
-                        </Link>
                       </div>
                     </div>
                   );
