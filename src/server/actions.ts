@@ -11,6 +11,7 @@ function generateSlug(name: string, city: string) {
 }
 
 export async function createBusiness(prevState: unknown, formData: FormData) {
+  let business;
   try {
     const session = await getServerSession(authOptions);
     
@@ -48,7 +49,7 @@ export async function createBusiness(prevState: unknown, formData: FormData) {
       return { error: "A business with a similar name already exists in this city. Please try a different name." };
     }
 
-    const business = await prisma.business.create({
+    business = await prisma.business.create({
       data: {
         ownerId: user.id,
         name,
@@ -69,10 +70,11 @@ export async function createBusiness(prevState: unknown, formData: FormData) {
       }
     });
 
-    revalidatePath("/dashboard");
-    return { success: true, id: business.id };
   } catch (err) {
     console.error("Create business error:", err);
     return { error: "An unexpected error occurred. Please try again." };
   }
+
+  revalidatePath("/dashboard");
+  redirect(`/dashboard/business/${business.id}/pay`);
 }
