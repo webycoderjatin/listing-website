@@ -12,12 +12,13 @@ export const metadata: Metadata = {
 export default async function SearchPage({
   searchParams,
 }: {
-  searchParams: { q?: string | string[]; category?: string | string[]; location?: string | string[]; page?: string | string[] };
+  searchParams: Promise<{ q?: string | string[]; category?: string | string[]; location?: string | string[]; page?: string | string[] }>;
 }) {
-  const queryParam = Array.isArray(searchParams.q) ? searchParams.q[0] : searchParams.q;
-  const categoryParam = Array.isArray(searchParams.category) ? searchParams.category[0] : searchParams.category;
-  const locationParam = Array.isArray(searchParams.location) ? searchParams.location[0] : searchParams.location;
-  const pageParam = Array.isArray(searchParams.page) ? searchParams.page[0] : searchParams.page;
+  const awaitedSearchParams = await searchParams;
+  const queryParam = Array.isArray(awaitedSearchParams.q) ? awaitedSearchParams.q[0] : awaitedSearchParams.q;
+  const categoryParam = Array.isArray(awaitedSearchParams.category) ? awaitedSearchParams.category[0] : awaitedSearchParams.category;
+  const locationParam = Array.isArray(awaitedSearchParams.location) ? awaitedSearchParams.location[0] : awaitedSearchParams.location;
+  const pageParam = Array.isArray(awaitedSearchParams.page) ? awaitedSearchParams.page[0] : awaitedSearchParams.page;
 
   const query = queryParam || "";
   const category = categoryParam || "";

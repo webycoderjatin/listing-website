@@ -30,9 +30,9 @@ export async function POST(req: Request) {
     const currency = "INR";
 
     const options = {
-      amount: amount.toString(),
+      amount,
       currency,
-      receipt: `rcpt_${businessId}_${Date.now()}`,
+      receipt: `rcpt_${businessId.substring(0, 20)}`,
     };
 
     const order = await razorpay.orders.create(options);

@@ -36,14 +36,15 @@ async function rejectBusiness(formData: FormData) {
 export default async function AdminBusinessesPage({
   searchParams,
 }: {
-  searchParams: { page?: string };
+  searchParams: Promise<{ page?: string }>;
 }) {
   const session = await getServerSession(authOptions);
   if (!session || session.user?.role !== "ADMIN") {
     redirect("/");
   }
 
-  const page = parseInt(searchParams.page || "1");
+  const awaitedSearchParams = await searchParams;
+  const page = parseInt(awaitedSearchParams.page || "1");
   const take = 50;
   const skip = (page - 1) * take;
 

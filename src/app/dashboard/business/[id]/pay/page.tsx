@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, use } from "react";
 import { useRouter } from "next/navigation";
 import { CreditCard, CheckCircle } from "lucide-react";
 import Script from "next/script";
 
-export default function PaymentPage({ params }: { params: { id: string } }) {
+export default function PaymentPage({ params }: { params: Promise<{ id: string }> }) {
+  const unwrappedParams = use(params);
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -19,7 +20,7 @@ export default function PaymentPage({ params }: { params: { id: string } }) {
       const res = await fetch("/api/razorpay/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ businessId: params.id }),
+        body: JSON.stringify({ businessId: unwrappedParams.id }),
       });
 
       if (!res.ok) throw new Error("Failed to create order");
@@ -41,7 +42,7 @@ export default function PaymentPage({ params }: { params: { id: string } }) {
               razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_signature: response.razorpay_signature,
-              businessId: params.id,
+              businessId: unwrappedParams.id,
             }),
           });
 

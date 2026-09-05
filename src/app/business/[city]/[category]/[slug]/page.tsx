@@ -4,15 +4,16 @@ import { MapPin, Phone, Globe, MessageCircle, Clock, CheckCircle2, Star, Share2 
 import type { Metadata, ResolvingMetadata } from "next";
 
 type Props = {
-  params: { city: string; category: string; slug: string };
+  params: Promise<{ city: string; category: string; slug: string }>;
 };
 
 export async function generateMetadata(
   { params }: Props,
   parent: ResolvingMetadata
 ): Promise<Metadata> {
+  const { slug } = await params;
   const business = await prisma.business.findUnique({
-    where: { slug: params.slug },
+    where: { slug },
     include: { category: true },
   });
 
@@ -27,8 +28,9 @@ export async function generateMetadata(
 }
 
 export default async function BusinessProfilePage({ params }: Props) {
+  const { slug } = await params;
   const business = await prisma.business.findUnique({
-    where: { slug: params.slug },
+    where: { slug },
     include: {
       category: true,
       media: { orderBy: { sortOrder: 'asc' } },
