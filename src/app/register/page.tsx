@@ -26,7 +26,11 @@ export default function RegisterPage() {
       });
 
       if (res.ok) {
-        router.push("/login?registered=true");
+        const callbackUrl = new URLSearchParams(window.location.search).get("callbackUrl");
+        const safeCallbackUrl = callbackUrl?.startsWith("/") && !callbackUrl.startsWith("//")
+          ? `&callbackUrl=${encodeURIComponent(callbackUrl)}`
+          : "";
+        router.push(`/login?registered=true${safeCallbackUrl}`);
       } else {
         const data = await res.json();
         setError(data.message || "Registration failed");

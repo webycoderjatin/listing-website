@@ -29,11 +29,15 @@ export default function LoginPage() {
         setError("Invalid email or password");
       } else {
         const session = await getSession();
-        const destination = session?.user?.role === "ADMIN"
+        const callbackUrl = new URLSearchParams(window.location.search).get("callbackUrl");
+        const safeCallbackUrl = callbackUrl?.startsWith("/") && !callbackUrl.startsWith("//")
+          ? callbackUrl
+          : null;
+        const destination = safeCallbackUrl ?? (session?.user?.role === "ADMIN"
           ? "/admin"
           : session?.user?.role === "BUSINESS_OWNER"
             ? "/dashboard"
-            : "/profile";
+            : "/profile");
         router.push(destination);
         router.refresh();
       }

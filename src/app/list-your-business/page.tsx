@@ -1,13 +1,63 @@
 import Link from "next/link";
 import { Check, Store, MapPin, Globe, Clock, Camera } from "lucide-react";
 import type { Metadata } from "next";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
   title: "List Your Business | LocalFind",
   description: "Get your business online and attract more local customers with a premium profile on LocalFind for just ₹399/year.",
 };
 
-export default function ListYourBusinessPage() {
+export const dynamic = "force-dynamic";
+
+async function startBusinessOnboarding() {
+  "use server";
+
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) {
+    redirect("/login?callbackUrl=/list-your-business");
+  }
+
+  if (session.user.role === "ADMIN") {
+    redirect("/admin");
+  }
+
+  if (session.user.role === "USER") {
+    const updated = await prisma.user.updateMany({
+      where: { id: session.user.id, role: "USER" },
+      data: { role: "BUSINESS_OWNER" },
+    });
+
+    if (updated.count !== 1) {
+      redirect("/profile");
+    }
+  }
+
+  redirect("/dashboard/business/new");
+}
+
+export default async function ListYourBusinessPage() {
+  const session = await getServerSession(authOptions);
+  const isAuthenticated = Boolean(session?.user?.id);
+
+  const cta = isAuthenticated ? (
+    <form action={startBusinessOnboarding}>
+      <button type="submit" className="inline-block bg-white text-blue-600 font-bold px-8 py-4 rounded-full text-lg shadow-lg hover:shadow-xl hover:bg-gray-50 transition-all transform hover:-translate-y-1">
+        Create My Listing — ₹399/year
+      </button>
+    </form>
+  ) : (
+    <Link
+      href="/login?callbackUrl=/list-your-business"
+      className="inline-block bg-white text-blue-600 font-bold px-8 py-4 rounded-full text-lg shadow-lg hover:shadow-xl hover:bg-gray-50 transition-all transform hover:-translate-y-1"
+    >
+      Create My Listing — ₹399/year
+    </Link>
+  );
+
   return (
     <div className="bg-white min-h-screen">
       {/* Header */}
@@ -19,12 +69,7 @@ export default function ListYourBusinessPage() {
           Create a premium, SEO-friendly online presence for your business in minutes. 
           Get found when locals search for your services.
         </p>
-        <Link 
-          href="/dashboard/business/new" 
-          className="inline-block bg-white text-blue-600 font-bold px-8 py-4 rounded-full text-lg shadow-lg hover:shadow-xl hover:bg-gray-50 transition-all transform hover:-translate-y-1"
-        >
-          Create My Listing — ₹399/year
-        </Link>
+        {cta}
         <p className="mt-4 text-blue-200 text-sm">No hidden fees. Cancel anytime.</p>
       </div>
 
@@ -110,12 +155,17 @@ export default function ListYourBusinessPage() {
       <div className="py-20 px-4 sm:px-6 lg:px-8 text-center max-w-4xl mx-auto">
         <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">Ready to get discovered?</h2>
         <p className="text-xl text-gray-600 mb-10">Join the platform that helps local customers find you.</p>
-        <Link 
-          href="/dashboard/business/new" 
-          className="inline-block bg-blue-600 text-white font-bold px-10 py-5 rounded-xl text-lg shadow-xl shadow-blue-600/30 hover:bg-blue-700 transition-colors"
-        >
-          Get Started Now — Just ₹399/year
-        </Link>
+        {isAuthenticated ? (
+          <form action={startBusinessOnboarding}>
+            <button type="submit" className="inline-block bg-blue-600 text-white font-bold px-10 py-5 rounded-xl text-lg shadow-xl shadow-blue-600/30 hover:bg-blue-700 transition-colors">
+              Get Started Now — Just ₹399/year
+            </button>
+          </form>
+        ) : (
+          <Link href="/login?callbackUrl=/list-your-business" className="inline-block bg-blue-600 text-white font-bold px-10 py-5 rounded-xl text-lg shadow-xl shadow-blue-600/30 hover:bg-blue-700 transition-colors">
+            Get Started Now — Just ₹399/year
+          </Link>
+        )}
       </div>
     </div>
   );
