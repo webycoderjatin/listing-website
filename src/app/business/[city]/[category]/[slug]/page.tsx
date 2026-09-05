@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { MapPin, Phone, Globe, MessageCircle, Clock, ShieldCheck, Share2, Star, Navigation } from "lucide-react";
 import type { Metadata } from "next";
 import { normalisePhoneForWhatsApp, slugify } from "@/lib/text";
+import Image from "next/image";
+import { getSafeImageUrl } from "@/lib/validation";
 
 export const dynamic = "force-dynamic";
 
@@ -46,8 +48,8 @@ export default async function BusinessProfilePage({ params }: Props) {
     notFound();
   }
 
-  const logo = business.media.find(m => m.type === 'LOGO');
-  const images = business.media.filter(m => m.type === 'IMAGE');
+  const logo = business.media.find((media) => media.type === "LOGO" && getSafeImageUrl(media.url, "") !== "");
+  const images = business.media.filter((media) => media.type === "IMAGE" && getSafeImageUrl(media.url, "") !== "");
   const whatsappNumber = business.whatsapp ? normalisePhoneForWhatsApp(business.whatsapp) : "";
 
   const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -60,18 +62,14 @@ export default async function BusinessProfilePage({ params }: Props) {
   };
   
   const avgRating = getAverageRating(business.reviews);
-  const bannerImage = images.length > 0 ? images[0].url : "https://images.unsplash.com/photo-1556761175-5973dc0f32b7?w=1600&q=80";
+  const bannerImage = getSafeImageUrl(images[0]?.url, "https://images.unsplash.com/photo-1556761175-5973dc0f32b7?w=1600&q=80");
 
   return (
     <div className="bg-slate-50 min-h-screen pb-24">
       {/* Premium Header Banner */}
       <div className="h-72 md:h-96 relative w-full overflow-hidden">
         <div className="absolute inset-0 bg-slate-900 z-0"></div>
-        <img 
-          src={bannerImage} 
-          alt={business.name} 
-          className="w-full h-full object-cover opacity-60 mix-blend-overlay scale-105"
-        />
+        <Image src={bannerImage} alt={business.name} fill priority sizes="100vw" className="object-cover opacity-60 mix-blend-overlay scale-105" />
         <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent z-10"></div>
         <div className="absolute inset-0 bg-gradient-to-b from-transparent to-slate-900/90 z-10"></div>
       </div>
@@ -85,7 +83,7 @@ export default async function BusinessProfilePage({ params }: Props) {
             {/* Logo Avatar */}
             <div className="w-32 h-32 md:w-44 md:h-44 bg-white rounded-3xl shadow-xl flex items-center justify-center border-4 border-white overflow-hidden flex-shrink-0 -mt-20 md:-mt-24 z-30 relative group">
               {logo ? (
-                <img src={logo.url} alt={`${business.name} logo`} className="w-full h-full object-cover bg-white" />
+                <Image src={getSafeImageUrl(logo.url, bannerImage)} alt={`${business.name} logo`} fill sizes="176px" className="object-cover bg-white" />
               ) : (
                 <div className="text-5xl text-slate-300 font-extrabold bg-slate-50 w-full h-full flex items-center justify-center">
                   {business.name.charAt(0)}
@@ -192,7 +190,7 @@ export default async function BusinessProfilePage({ params }: Props) {
                   {images.map((img) => (
                     <div key={img.id} className="aspect-square rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 group cursor-pointer relative">
                       <div className="absolute inset-0 bg-slate-900/0 group-hover:bg-slate-900/10 transition-colors z-10"></div>
-                      <img src={img.url} alt={business.name} className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700" />
+                      <Image src={getSafeImageUrl(img.url, bannerImage)} alt={business.name} fill sizes="(max-width: 768px) 50vw, 33vw" className="object-cover transform group-hover:scale-110 transition-transform duration-700" />
                     </div>
                   ))}
                 </div>

@@ -3,6 +3,7 @@ import { revalidatePath } from "next/cache";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
+import { canAdminTransitionListing } from "@/lib/listing";
 
 export const dynamic = "force-dynamic";
 
@@ -18,7 +19,9 @@ async function setBusinessStatus(formData: FormData, status: "APPROVED" | "REJEC
   await requireAdmin();
   const id = String(formData.get("id") ?? "");
   if (!id) return;
-  await prisma.business.update({ where: { id }, data: { status } });
+  const business = await prisma.business.findUnique({ where: { id }, select: { status: true } });
+  if (!business || !canAdminTransitionListing(business.status, status)) return;
+  await prisma.business.updateMany({ where: { id, status: business.status }, data: { status } });
   revalidatePath("/admin");
   revalidatePath("/admin/businesses");
   revalidatePath("/dashboard");

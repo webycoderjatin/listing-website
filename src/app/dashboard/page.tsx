@@ -2,7 +2,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
-import { Plus, Store, Clock, CheckCircle, CreditCard, ArrowRight, Activity, TrendingUp } from "lucide-react";
+import { Plus, Store, Clock, CheckCircle, CreditCard, ArrowRight, Activity } from "lucide-react";
 import { redirect } from "next/navigation";
 import { slugify } from "@/lib/text";
 

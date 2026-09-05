@@ -1,12 +1,14 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
+import { Prisma } from "@prisma/client";
+import { readBoundedText } from "@/lib/validation";
 
 export async function POST(req: Request) {
   try {
     const { name, email, password } = await req.json();
-    const normalizedName = typeof name === "string" ? name.trim() : "";
-    const normalizedEmail = typeof email === "string" ? email.trim().toLowerCase() : "";
+    const normalizedName = readBoundedText(name, 120);
+    const normalizedEmail = readBoundedText(email, 254).toLowerCase();
 
     if (!normalizedName || !normalizedEmail || typeof password !== "string") {
       return NextResponse.json(
@@ -35,14 +37,16 @@ export async function POST(req: Request) {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    await prisma.user.create({
-      data: {
-        name: normalizedName,
-        email: normalizedEmail,
-        password: hashedPassword,
-        role: "USER",
-      },
-    });
+    try {
+      await prisma.user.create({
+        data: { name: normalizedName, email: normalizedEmail, password: hashedPassword, role: "USER" },
+      });
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+        return NextResponse.json({ message: "User already exists" }, { status: 409 });
+      }
+      throw error;
+    }
 
     return NextResponse.json(
       { message: "User created successfully" },

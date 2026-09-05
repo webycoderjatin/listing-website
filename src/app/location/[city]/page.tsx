@@ -3,6 +3,8 @@ import Link from "next/link";
 import { MapPin, Store, Star, ArrowLeft, ShieldCheck } from "lucide-react";
 import type { Metadata } from "next";
 import { slugify } from "@/lib/text";
+import Image from "next/image";
+import { getSafeImageUrl } from "@/lib/validation";
 
 export const dynamic = "force-dynamic";
 
@@ -79,7 +81,7 @@ export default async function LocationPage({ params }: { params: Promise<{ city:
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {businesses.map((business) => {
               const avgRating = getAverageRating(business.reviews);
-              const imageUrl = business.media[0]?.url || "https://images.unsplash.com/photo-1556761175-5973dc0f32b7?w=800&q=80";
+              const imageUrl = getSafeImageUrl(business.media[0]?.url, "https://images.unsplash.com/photo-1556761175-5973dc0f32b7?w=800&q=80");
               
               return (
                 <div key={business.id} className="bg-white rounded-3xl overflow-hidden border border-slate-200 hover:shadow-premium-hover transition-all group flex flex-col h-full relative">
@@ -91,7 +93,7 @@ export default async function LocationPage({ params }: { params: Promise<{ city:
                   )}
                   
                   <div className="relative h-48 overflow-hidden bg-slate-100">
-                    <img src={imageUrl} alt={business.name} className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500" />
+                    <Image src={imageUrl} alt={business.name} fill sizes="(max-width: 768px) 100vw, 33vw" className="object-cover transform group-hover:scale-105 transition-transform duration-500" />
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 to-transparent"></div>
                     <div className="absolute bottom-4 left-4">
                       <span className="bg-blue-600 text-white shadow-sm px-2.5 py-1 rounded-lg text-xs font-bold tracking-wide">{business.category.name}</span>

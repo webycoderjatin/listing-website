@@ -21,7 +21,7 @@ export default function DashboardLayout({
     } else if (status === "authenticated" && session?.user?.role !== "BUSINESS_OWNER") {
       router.push("/profile");
     }
-  }, [status, router]);
+  }, [status, session?.user?.role, router]);
 
   if (status === "loading") {
     return (
