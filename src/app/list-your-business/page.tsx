@@ -5,6 +5,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
+import Image from "next/image";
 
 export const metadata: Metadata = {
   title: "List Your Business | Show Listing",
@@ -107,7 +108,7 @@ export default async function ListYourBusinessPage() {
               <div className="flex flex-col md:flex-row gap-8">
                 <div className="w-full md:w-1/3">
                   <div className="w-full aspect-square rounded-2xl bg-slate-200 overflow-hidden relative shadow-inner">
-                    <img src="https://images.unsplash.com/photo-1606811841689-23dfddce3e95?w=800&q=80" alt="Preview" className="w-full h-full object-cover" />
+                    <Image src="https://images.unsplash.com/photo-1606811841689-23dfddce3e95?w=800&q=80" alt="Preview" fill sizes="(max-width: 768px) 100vw, 33vw" className="object-cover" />
                   </div>
                 </div>
                 <div className="w-full md:w-2/3">

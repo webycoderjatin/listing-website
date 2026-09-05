@@ -4,7 +4,8 @@ import { useState } from "react";
 import { getSession, signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Store, ArrowRight, Lock, Mail } from "lucide-react";
+import { ArrowRight, Lock, Mail } from "lucide-react";
+import Image from "next/image";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -58,7 +59,7 @@ export default function LoginPage() {
         
         <div className="text-center">
           <Link href="/" className="inline-flex justify-center items-center gap-2.5 mb-8 group">
-            <img src="/logo.png" alt="Show Listing" className="h-12 w-auto group-hover:scale-105 transition-transform" />
+            <Image src="/logo.png" alt="Show Listing" width={160} height={48} className="h-12 w-auto group-hover:scale-105 transition-transform" />
           </Link>
           <h2 className="mt-2 text-3xl font-extrabold text-slate-900 tracking-tight">
             Welcome back

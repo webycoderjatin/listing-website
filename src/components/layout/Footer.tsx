@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Store, ChevronRight } from "lucide-react";
+import { ChevronRight } from "lucide-react";
+import Image from "next/image";
 
 export function Footer() {
   return (
@@ -10,7 +11,7 @@ export function Footer() {
           <div className="md:col-span-12 lg:col-span-4">
             <Link href="/" className="inline-block mb-6">
               <span className="text-3xl font-extrabold tracking-tight text-white flex items-center">
-                <img src="/logo.png" alt="Show Listing" className="h-15 w-auto mr-3 brightness-0 invert" />
+                <Image src="/logo.png" alt="Show Listing" width={200} height={60} className="h-15 w-auto mr-3 brightness-0 invert" />
               </span>
             </Link>
             <p className="text-slate-400 text-base leading-relaxed max-w-sm mb-8">

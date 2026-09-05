@@ -5,6 +5,9 @@ declare module 'razorpay' {
     orders: {
       create(options: Record<string, unknown>): Promise<Record<string, unknown>>;
     };
+    payments: {
+      fetch(paymentId: string): Promise<{ id: string; order_id?: string; amount: number; currency: string; status: string }>;
+    };
   }
 }
 
