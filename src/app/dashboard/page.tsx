@@ -11,8 +11,12 @@ export const dynamic = "force-dynamic";
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
   
-  if (!session) {
+  if (!session?.user?.id) {
     redirect("/login");
+  }
+
+  if (session.user.role !== "BUSINESS_OWNER") {
+    redirect("/profile");
   }
 
   const user = session.user;

@@ -40,7 +40,7 @@ export async function POST(req: Request) {
         name: normalizedName,
         email: normalizedEmail,
         password: hashedPassword,
-        role: "BUSINESS_OWNER",
+        role: "USER",
       },
     });
 

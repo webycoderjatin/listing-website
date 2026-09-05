@@ -47,8 +47,8 @@ export function Navbar() {
             
             {session ? (
               <div className="relative flex items-center space-x-4">
-                <Link href={session.user?.role === 'ADMIN' ? '/admin' : '/dashboard'} className="text-gray-700 hover:text-gray-900">
-                  Dashboard
+                <Link href={session.user?.role === 'ADMIN' ? '/admin' : session.user?.role === 'BUSINESS_OWNER' ? '/dashboard' : '/profile'} className="text-gray-700 hover:text-gray-900">
+                  {session.user?.role === 'USER' ? 'Profile' : 'Dashboard'}
                 </Link>
                 <button 
                   onClick={() => signOut()}
@@ -88,8 +88,8 @@ export function Navbar() {
             </Link>
             {session ? (
               <>
-                <Link href={session.user?.role === 'ADMIN' ? '/admin' : '/dashboard'} className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800">
-                  Dashboard
+                <Link href={session.user?.role === 'ADMIN' ? '/admin' : session.user?.role === 'BUSINESS_OWNER' ? '/dashboard' : '/profile'} className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800">
+                  {session.user?.role === 'USER' ? 'Profile' : 'Dashboard'}
                 </Link>
                 <button onClick={() => signOut()} className="block w-full text-left pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800">
                   Sign out

@@ -1,9 +1,16 @@
 import { prisma } from "@/lib/prisma";
 import { NewBusinessForm } from "./NewBusinessForm";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
+import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
 export default async function NewBusinessPage() {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) redirect("/login");
+  if (session.user.role !== "BUSINESS_OWNER") redirect("/profile");
+
   const categories = await prisma.category.findMany({
     orderBy: { name: "asc" }
   });

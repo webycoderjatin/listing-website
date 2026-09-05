@@ -18,6 +18,8 @@ export default function DashboardLayout({
   useEffect(() => {
     if (status === "unauthenticated") {
       router.push("/login");
+    } else if (status === "authenticated" && session?.user?.role !== "BUSINESS_OWNER") {
+      router.push("/profile");
     }
   }, [status, router]);
 
@@ -25,7 +27,7 @@ export default function DashboardLayout({
     return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
   }
 
-  if (!session) {
+  if (!session || session.user?.role !== "BUSINESS_OWNER") {
     return null;
   }
 

@@ -18,7 +18,7 @@ export async function createBusiness(_prevState: FormState, formData: FormData):
   try {
     const session = await getServerSession(authOptions);
     
-    if (!session?.user) {
+    if (!session?.user?.id || session.user.role !== "BUSINESS_OWNER") {
       return { error: "Unauthorized" };
     }
 
