@@ -10,7 +10,20 @@ export const dynamic = "force-dynamic";
 export default async function NewBusinessPage() {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) redirect("/login");
-  if (session.user.role !== "BUSINESS_OWNER") redirect("/profile");
+
+const dbUser = await prisma.user.findUnique({
+  where: { id: session.user.id },
+  select: {
+    id: true,
+    emailVerifiedAt: true,
+  },
+});
+
+if (!dbUser) redirect("/login");
+
+if (!dbUser.emailVerifiedAt) {
+  redirect("/verify-email");
+}
 
   let categories = await prisma.category.findMany({
     orderBy: { name: "asc" }

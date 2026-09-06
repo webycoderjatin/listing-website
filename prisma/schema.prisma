@@ -7,6 +7,141 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id                    String     @id @default(cuid())
+  name                  String?
+  email                 String     @unique
+  password              String?
+  role                  Role       @default(USER)
+  createdAt             DateTime   @default(now())
+  updatedAt             DateTime   @updatedAt
+  emailVerifiedAt       DateTime?
+  verificationCodeHash  String?
+  verificationExpiresAt DateTime?
+  verificationAttempts  Int        @default(0)
+  verificationSentAt    DateTime?
+  businesses            Business[]
+}
+
+model Business {
+  id              String          @id @default(cuid())
+  ownerId         String
+  name            String
+  slug            String          @unique
+  description     String?
+  categoryId      String
+  phone           String?
+  whatsapp        String?
+  email           String?
+  website         String?
+  address         String?
+  locality        String?
+  city            String?
+  state           String?
+  pincode         String?
+  latitude        Float?
+  longitude       Float?
+  status          ListingStatus   @default(DRAFT)
+  verified        Boolean         @default(false)
+  seoTitle        String?
+  seoDescription  String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  expiresAt       DateTime?
+  tagline         String?
+  businessType    String?
+  yearEstablished Int?
+  secondaryPhone  String?
+  country         String?
+  landmark        String?
+  serviceAreas    String[]        @default([])
+  amenities       String[]        @default([])
+  instagramUrl    String?
+  facebookUrl     String?
+  youtubeUrl      String?
+  linkedinUrl     String?
+  category        Category        @relation(fields: [categoryId], references: [id])
+  owner           User            @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  hours           BusinessHours[]
+  media           Media[]
+  payments        Payment[]
+  reviews         Review[]
+  services        Service[]
+
+  @@index([ownerId])
+  @@index([city])
+  @@index([categoryId])
+  @@index([status])
+}
+
+model Category {
+  id          String     @id @default(cuid())
+  name        String
+  slug        String     @unique
+  description String?
+  businesses  Business[]
+}
+
+model Media {
+  id         String   @id @default(cuid())
+  businessId String
+  type       String
+  url        String
+  thumbnail  String?
+  sortOrder  Int      @default(0)
+  isCover    Boolean  @default(false)
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+}
+
+model Service {
+  id          String   @id @default(cuid())
+  businessId  String
+  name        String
+  description String?
+  price       String?
+  duration    String?
+  group       String?
+  sortOrder   Int      @default(0)
+  business    Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+}
+
+model BusinessHours {
+  id         String   @id @default(cuid())
+  businessId String
+  day        Int
+  openTime   String?
+  closeTime  String?
+  closed     Boolean  @default(false)
+  allDay     Boolean  @default(false)
+  sortOrder  Int      @default(0)
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+}
+
+model Payment {
+  id                String        @id @default(cuid())
+  businessId        String
+  razorpayOrderId   String        @unique
+  razorpayPaymentId String?       @unique
+  razorpaySignature String?
+  amount            Int
+  currency          String        @default("INR")
+  status            PaymentStatus @default(PENDING)
+  createdAt         DateTime      @default(now())
+  paidAt            DateTime?
+  business          Business      @relation(fields: [businessId], references: [id], onDelete: Cascade)
+}
+
+model Review {
+  id         String   @id @default(cuid())
+  businessId String
+  name       String
+  rating     Int
+  comment    String?
+  status     String   @default("PENDING")
+  createdAt  DateTime @default(now())
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+}
+
 enum Role {
   USER
   BUSINESS_OWNER
@@ -28,146 +163,4 @@ enum PaymentStatus {
   SUCCESS
   FAILED
   REFUNDED
-}
-
-model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String    @unique
-  password      String?   
-  role          Role      @default(USER)
-  emailVerifiedAt DateTime?
-  verificationCodeHash String?
-  verificationExpiresAt DateTime?
-  verificationAttempts Int @default(0)
-  verificationSentAt DateTime?
-  businesses    Business[]
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-}
-
-model Business {
-  id          String        @id @default(cuid())
-  ownerId     String
-  owner       User          @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  
-  name        String
-  slug        String        @unique
-  description String?       @db.Text
-  categoryId  String
-  category    Category      @relation(fields: [categoryId], references: [id])
-  
-  phone       String?
-  whatsapp    String?
-  email       String?
-  website     String?
-  
-  address     String?
-  locality    String?
-  city        String?
-  state       String?
-  pincode     String?
-  latitude    Float?
-  longitude   Float?
-  
-  status      ListingStatus @default(DRAFT)
-  verified    Boolean       @default(false)
-  
-  seoTitle        String?
-  seoDescription  String?
-  tagline         String?
-  businessType    String?
-  yearEstablished Int?
-  secondaryPhone  String?
-  country         String?
-  landmark        String?
-  serviceAreas    String[] @default([])
-  amenities       String[] @default([])
-  instagramUrl    String?
-  facebookUrl     String?
-  youtubeUrl      String?
-  linkedinUrl     String?
-  
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  expiresAt   DateTime?
-
-  media       Media[]
-  services    Service[]
-  hours       BusinessHours[]
-  payments    Payment[]
-  reviews     Review[]
-
-  @@index([ownerId])
-  @@index([city])
-  @@index([categoryId])
-  @@index([status])
-}
-
-model Category {
-  id          String     @id @default(cuid())
-  name        String
-  slug        String     @unique
-  description String?    @db.Text
-  businesses  Business[]
-}
-
-model Media {
-  id          String    @id @default(cuid())
-  businessId  String
-  business    Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  type        String    // 'IMAGE' or 'VIDEO' or 'LOGO'
-  url         String
-  thumbnail   String?
-  sortOrder   Int       @default(0)
-  isCover     Boolean   @default(false)
-}
-
-model Service {
-  id          String    @id @default(cuid())
-  businessId  String
-  business    Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  name        String
-  description String?   @db.Text
-  price       String?
-  duration    String?
-  group       String?
-  sortOrder   Int       @default(0)
-}
-
-model BusinessHours {
-  id          String    @id @default(cuid())
-  businessId  String
-  business    Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  day         Int       // 0 = Sunday, 1 = Monday, etc.
-  openTime    String?   // "09:00"
-  closeTime   String?   // "18:00"
-  closed      Boolean   @default(false)
-  allDay      Boolean   @default(false)
-  sortOrder   Int       @default(0)
-}
-
-model Payment {
-  id                String        @id @default(cuid())
-  businessId        String
-  business          Business      @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  razorpayOrderId   String        @unique
-  razorpayPaymentId String?       @unique
-  razorpaySignature String?
-  amount            Int           
-  currency          String        @default("INR")
-  status            PaymentStatus @default(PENDING)
-  createdAt         DateTime      @default(now())
-  paidAt            DateTime?
-}
-
-model Review {
-  id          String    @id @default(cuid())
-  businessId  String
-  business    Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  name        String
-  rating      Int
-  comment     String?   @db.Text
-  status      String    @default("PENDING") 
-  createdAt   DateTime  @default(now())
 }

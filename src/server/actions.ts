@@ -24,9 +24,9 @@ export async function createBusiness(
   try {
     const session = await getServerSession(authOptions);
 
-    if (!session?.user?.id || session.user.role !== "BUSINESS_OWNER") {
-      return { error: "Unauthorized" };
-    }
+    if (!session?.user?.id) {
+  return { error: "Unauthorized" };
+}
 
     // Always verify the account server-side before allowing listing creation.
     const dbUser = await prisma.user.findUnique({
@@ -116,6 +116,7 @@ export async function createBusiness(
           seoDescription: description.substring(0, 150),
         },
       });
+
     } catch (error) {
       // A concurrent request can claim a candidate slug after
       // the availability check.
@@ -131,6 +132,11 @@ export async function createBusiness(
 
       throw error;
     }
+
+      await prisma.user.update({
+    where: { id: dbUser.id },
+    data: { role: "BUSINESS_OWNER" },
+  });
   } catch (err) {
     console.error("Create business error:", err);
     return {
